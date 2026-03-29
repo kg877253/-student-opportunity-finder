@@ -1,0 +1,41 @@
+name: student-opportunity-finder
+version: 0.1.0
+description: >
+  An RL environment that helps Indian students find scholarships,
+  government exams and check eligibility. Built for the Meta PyTorch
+  OpenEnv Hackathon 2026.
+
+author: Kartik and Team
+license: MIT
+
+tasks:
+  - name: find_scholarships
+    description: Find matching scholarships based on student profile
+    difficulty: easy
+    reward_range: [0.0, 1.0]
+
+  - name: find_exams
+    description: Find government exams student can apply for
+    difficulty: medium
+    reward_range: [0.0, 1.0]
+
+  - name: check_eligibility
+    description: Check detailed eligibility for a specific scholarship
+    difficulty: hard
+    reward_range: [0.0, 1.0]
+
+observation_space:
+  type: structured
+  format: json
+
+action_space:
+  type: structured
+  format: json
+
+endpoints:
+  - /reset
+  - /step
+  - /state
+  - /tasks
+  - /grader
+  - /baseline
