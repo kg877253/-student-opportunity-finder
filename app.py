@@ -3,21 +3,17 @@ from models import StudentAction, EligibilityAction
 from environment import ScholarshipEnvironment
 from graders import grade_task1, grade_task2, grade_task3
 
-# Create the FastAPI app
-# Think of this like creating a website that serves your environment!
 app = FastAPI(
     title="Student Opportunity Finder",
     description="An RL environment for finding scholarships and exams for Indian students",
     version="0.1.0"
 )
 
-# Create one environment instance
 env = ScholarshipEnvironment()
 
 
 @app.get("/")
 def home():
-    # This runs when someone visits your website
     return {
         "message": "Student Opportunity Finder Environment is running!",
         "version": "0.1.0",
@@ -27,40 +23,34 @@ def home():
 
 @app.get("/health")
 def health():
-    # Judges ping this to check if your environment is alive
     return {"status": "healthy"}
 
 
 @app.post("/reset")
 def reset():
-    # Start a fresh episode
     state = env.reset()
     return state
 
 
 @app.post("/step")
 def step(action: StudentAction):
-    # Take a step with student action
     result = env.step(action)
     return result
 
 
 @app.post("/step/eligibility")
 def step_eligibility(action: EligibilityAction):
-    # Take a step with eligibility action
     result = env.step(action)
     return result
 
 
 @app.get("/state")
 def get_state():
-    # Get current environment state
     return env.state
 
 
 @app.get("/tasks")
 def get_tasks():
-    # Return list of all tasks and their details
     return {
         "tasks": [
             {
@@ -114,8 +104,6 @@ def get_tasks():
 
 @app.get("/baseline")
 def baseline():
-    # Run baseline scores for all 3 tasks
-    # Judges use this to verify your environment works
     test_student = {
         "name": "Test Student",
         "gender": "Male",
@@ -149,7 +137,6 @@ def baseline():
 
 @app.get("/grader")
 def grader():
-    # Judges use this to get grader scores
     test_student = {
         "name": "Test Student",
         "gender": "Male",

@@ -18,7 +18,6 @@ class ScholarshipEnvironment:
     def __init__(self):
         self.state = None
         self.current_action = None
-        # Auto reset on creation!
         self.reset()
 
     def reset(self):
@@ -31,10 +30,8 @@ class ScholarshipEnvironment:
         return self.state
 
     def step(self, action):
-        # Safety check - reset if state is None
         if self.state is None:
             self.reset()
-
         self.state.step_count += 1
 
         if isinstance(action, EligibilityAction):
