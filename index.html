@@ -4,108 +4,268 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Opportunity Finder 🎓</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+        :root {
+            --primary: #6c63ff;
+            --secondary: #ff6584;
+            --accent: #43e97b;
+            --warm: #f093fb;
+            --dark: #1a1a2e;
+            --card-bg: rgba(255,255,255,0.95);
+            --text: #2d2d2d;
+            --text-light: #666;
+            --shadow: 0 20px 60px rgba(108,99,255,0.15);
         }
 
-        .container {
-            max-width: 800px;
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .bg-animation {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            opacity: 0.15;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.15; }
+            50% { transform: translateY(-30px) rotate(180deg); opacity: 0.3; }
+        }
+
+        .main-wrapper {
+            position: relative;
+            z-index: 1;
+            padding: 30px 20px 60px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
+        /* Header */
         .header {
             text-align: center;
-            color: white;
-            padding: 30px 0;
+            padding: 40px 0 30px;
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-badge {
+            display: inline-block;
+            background: rgba(108,99,255,0.2);
+            border: 1px solid rgba(108,99,255,0.4);
+            color: #a89cff;
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 0.8em;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(108,99,255,0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(108,99,255,0); }
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 3em;
+            font-weight: 800;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 15px;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, #6c63ff, #f093fb, #43e97b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header p {
+            color: rgba(255,255,255,0.7);
             font-size: 1.1em;
-            opacity: 0.9;
+            font-weight: 300;
         }
 
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        .header-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 25px;
         }
 
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.4em;
+        .stat {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6c63ff, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Main Form Card */
+        .form-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.8s ease 0.2s both;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-title::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(135deg, #6c63ff, transparent);
+            border-radius: 2px;
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 18px;
+            margin-bottom: 25px;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
+            gap: 6px;
         }
 
         .form-group label {
+            font-size: 0.82em;
             font-weight: 600;
-            color: #444;
-            margin-bottom: 5px;
-            font-size: 0.9em;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-group input,
         .form-group select {
-            padding: 10px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: border-color 0.3s;
+            padding: 12px 16px;
+            border: 2px solid #e8e8f0;
+            border-radius: 12px;
+            font-size: 0.95em;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: #fafafa;
+            transition: all 0.3s ease;
             outline: none;
         }
 
         .form-group input:focus,
         .form-group select:focus {
-            border-color: #667eea;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(108,99,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Task Buttons */
+        .task-section {
+            margin-top: 10px;
+        }
+
+        .task-label {
+            font-size: 0.82em;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
         }
 
         .task-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px;
         }
 
         .task-btn {
-            padding: 15px;
+            padding: 16px 12px;
             border: none;
-            border-radius: 12px;
-            font-size: 1em;
+            border-radius: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9em;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+        .task-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.2);
+            transition: left 0.4s ease;
+        }
+
+        .task-btn:hover::before { left: 100%; }
 
         .task-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
+        .task-btn:active { transform: translateY(0); }
+
         .btn-scholarship {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #6c63ff, #9c94ff);
             color: white;
         }
 
@@ -115,292 +275,573 @@
         }
 
         .btn-eligibility {
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            color: white;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: #1a1a2e;
         }
 
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #667eea;
-            font-size: 1.2em;
-            display: none;
-        }
-
-        .results {
-            display: none;
-        }
-
-        .result-card {
-            background: #f8f9ff;
-            border-left: 4px solid #667eea;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .result-card h3 {
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .result-card .amount {
-            color: #27ae60;
-            font-weight: 600;
-            font-size: 1.1em;
-        }
-
-        .result-card .deadline {
-            color: #e74c3c;
-            font-size: 0.9em;
-        }
-
-        .match-score {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .score-high { background: #d4edda; color: #155724; }
-        .score-medium { background: #fff3cd; color: #856404; }
-        .score-low { background: #f8d7da; color: #721c24; }
-
-        .reason {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .eligibility-result {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .eligible-yes {
-            color: #27ae60;
+        .btn-icon {
+            display: block;
             font-size: 1.5em;
-            font-weight: 600;
+            margin-bottom: 4px;
         }
 
-        .eligible-no {
-            color: #e74c3c;
-            font-size: 1.5em;
-            font-weight: 600;
-        }
-
-        .criteria-list {
-            text-align: left;
+        /* Scholarship Select */
+        .scholarship-select-wrapper {
+            display: none;
             margin-top: 15px;
+            animation: fadeIn 0.4s ease;
         }
 
-        .criteria-pass {
-            color: #27ae60;
-            padding: 3px 0;
-        }
-
-        .criteria-fail {
-            color: #e74c3c;
-            padding: 3px 0;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .scholarship-select {
             width: 100%;
-            padding: 10px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            margin-top: 10px;
-            display: none;
+            padding: 12px 16px;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95em;
+            color: var(--text);
+            background: #fafafa;
+            outline: none;
+            cursor: pointer;
         }
 
-        .summary-box {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 15px;
-            padding: 20px;
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 14px;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(67,233,123,0.4);
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(108,99,255,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: rgba(255,255,255,0.7);
+            font-size: 1em;
+        }
+
+        /* Results */
+        .results { display: none; }
+
+        .results-header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 20px;
+            padding: 25px;
             margin-bottom: 20px;
             text-align: center;
+            color: white;
+            animation: slideUp 0.5s ease;
+            border: 1px solid rgba(108,99,255,0.2);
         }
 
-        .summary-box h3 {
-            font-size: 1.3em;
+        .results-header h2 {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .results-header .score-badge {
+            display: inline-block;
+            background: rgba(108,99,255,0.2);
+            border: 1px solid rgba(108,99,255,0.4);
+            color: #a89cff;
+            padding: 4px 16px;
+            border-radius: 50px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 22px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            animation: slideUp 0.5s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .result-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+
+        .result-card h3 {
+            font-size: 1em;
+            font-weight: 700;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .match-badge {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.8em;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .match-high { background: #d4edda; color: #155724; }
+        .match-medium { background: #fff3cd; color: #856404; }
+        .match-low { background: #f8d7da; color: #721c24; }
+
+        .result-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.88em;
+        }
+
+        .meta-amount { color: #27ae60; font-weight: 700; }
+        .meta-deadline { color: #e74c3c; }
+        .meta-type { color: #8e44ad; font-weight: 600; }
+        .meta-salary { color: #2980b9; font-weight: 600; }
+
+        .result-reason {
+            font-size: 0.85em;
+            color: var(--text-light);
+            background: #f8f9ff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border-left: 3px solid var(--primary);
+            margin-top: 8px;
+        }
+
+        /* Eligibility Result */
+        .eligibility-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            animation: slideUp 0.5s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .eligibility-status {
+            text-align: center;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .status-eligible {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+        }
+
+        .status-not-eligible {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border: 2px solid #dc3545;
+        }
+
+        .status-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .status-text {
+            font-size: 1.5em;
+            font-weight: 800;
             margin-bottom: 5px;
+        }
+
+        .status-eligible .status-text { color: #155724; }
+        .status-not-eligible .status-text { color: #721c24; }
+
+        .criteria-section h4 {
+            font-size: 0.9em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .criteria-pass {
+            background: #f0fff4;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .criteria-fail {
+            background: #fff5f5;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(-3px);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.8em;
+            padding: 30px 0 10px;
         }
 
         @media (max-width: 600px) {
             .form-grid { grid-template-columns: 1fr; }
             .task-buttons { grid-template-columns: 1fr; }
-            .header h1 { font-size: 1.8em; }
+            .header h1 { font-size: 2em; }
+            .header-stats { gap: 15px; }
+            .form-card { padding: 25px 20px; }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<!-- Animated background -->
+<div class="bg-animation" id="bgAnimation"></div>
+
+<div class="main-wrapper">
+
+    <!-- Header -->
     <div class="header">
-        <h1>🎓 Student Opportunity Finder</h1>
-        <p>Find scholarships and government exams perfect for YOU!</p>
-        <p style="font-size: 0.9em; margin-top: 5px; opacity: 0.8;">Built for Indian Students | Powered by AI</p>
-    </div>
-
-    <div class="card">
-        <h2>📝 Enter Your Details</h2>
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Your Name</label>
-                <input type="text" id="name" placeholder="Enter your name" value="">
+        <div class="header-badge">🇮🇳 Made for Indian Students</div>
+        <h1>Student <span>Opportunity</span> Finder</h1>
+        <p>Discover scholarships & government exams tailored just for you</p>
+        <div class="header-stats">
+            <div class="stat">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">Scholarships</div>
             </div>
-            <div class="form-group">
-                <label>Gender</label>
-                <select id="gender">
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                </select>
+            <div class="stat">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">Govt Exams</div>
             </div>
-            <div class="form-group">
-                <label>Category</label>
-                <select id="category">
-                    <option value="General">General</option>
-                    <option value="OBC">OBC</option>
-                    <option value="SC">SC</option>
-                    <option value="ST">ST</option>
-                    <option value="Minority">Minority</option>
-                </select>
+            <div class="stat">
+                <div class="stat-number">AI</div>
+                <div class="stat-label">Powered</div>
             </div>
-            <div class="form-group">
-                <label>State</label>
-                <select id="state">
-                    <option value="Delhi">Delhi</option>
-                    <option value="Maharashtra">Maharashtra</option>
-                    <option value="UP">Uttar Pradesh</option>
-                    <option value="Bihar">Bihar</option>
-                    <option value="Rajasthan">Rajasthan</option>
-                    <option value="Gujarat">Gujarat</option>
-                    <option value="Tamil Nadu">Tamil Nadu</option>
-                    <option value="Karnataka">Karnataka</option>
-                    <option value="West Bengal">West Bengal</option>
-                    <option value="All India">All India</option>
-                </select>
+            <div class="stat">
+                <div class="stat-number">Free</div>
+                <div class="stat-label">Always</div>
             </div>
-            <div class="form-group">
-                <label>Class 10 Marks (%)</label>
-                <input type="number" id="marks10" placeholder="e.g. 85" value="85" min="0" max="100">
-            </div>
-            <div class="form-group">
-                <label>Class 12 Marks (%)</label>
-                <input type="number" id="marks12" placeholder="e.g. 82" value="82" min="0" max="100">
-            </div>
-            <div class="form-group">
-                <label>Annual Family Income (₹)</label>
-                <input type="number" id="income" placeholder="e.g. 250000" value="">
-            </div>
-            <div class="form-group">
-                <label>Age</label>
-                <input type="number" id="age" placeholder="e.g. 18" value="18" min="10" max="60">
-            </div>
-            <div class="form-group">
-                <label>Course Level</label>
-                <select id="course_level">
-                    <option value="Undergraduate">Undergraduate</option>
-                    <option value="Postgraduate">Postgraduate</option>
-                    <option value="Class 12">Class 12</option>
-                    <option value="Class 10">Class 10</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Course Name</label>
-                <input type="text" id="course_name" placeholder="e.g. B.Sc, B.Tech" value="B.Sc">
-            </div>
-        </div>
-
-        <select class="scholarship-select" id="scholarship_select">
-            <option value="Buddy4Study ICICI Bank Domestic Education Loan Programme">ICICI Bank Education Loan</option>
-            <option value="National Sports Excellence Scholarship 2025-26">National Sports Excellence Scholarship</option>
-            <option value="Tata Sons Merit Scholarship 2025-26">Tata Sons Merit Scholarship</option>
-            <option value="Prime Minister Orphan Student Scholarship 2025-26">PM Orphan Student Scholarship</option>
-            <option value="Vivo KanyaGyaan Scholarship Program 2025-26">Vivo KanyaGyaan Scholarship</option>
-            <option value="JN Tata Endowment Loan Scholarship 2026-27">JN Tata Endowment Loan</option>
-            <option value="Delhi Government SC ST OBC Minority School Scholarship">Delhi Govt SC/ST/OBC Scholarship</option>
-            <option value="Infosys Foundation SC ST Technology Scholarship 2025-26">Infosys SC/ST Technology Scholarship</option>
-            <option value="Reliance Foundation Rural Girls Scholarship 2025-26">Reliance Rural Girls Scholarship</option>
-        </select>
-
-        <div class="task-buttons">
-            <button class="task-btn btn-scholarship" onclick="findScholarships()">
-                🎓 Find Scholarships
-            </button>
-            <button class="task-btn btn-exam" onclick="findExams()">
-                📋 Find Exams
-            </button>
-            <button class="task-btn btn-eligibility" onclick="checkEligibility()">
-                ✅ Check Eligibility
-            </button>
         </div>
     </div>
 
+    <!-- Form -->
+    <div id="formSection">
+        <div class="form-card">
+            <div class="form-title">📝 Tell us about yourself</div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="name" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category">
+                        <option value="General">General</option>
+                        <option value="OBC">OBC</option>
+                        <option value="SC">SC</option>
+                        <option value="ST">ST</option>
+                        <option value="Minority">Minority</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>State</label>
+                    <select id="state">
+                        <option value="Delhi">Delhi</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="UP">Uttar Pradesh</option>
+                        <option value="Bihar">Bihar</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Gujarat">Gujarat</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="West Bengal">West Bengal</option>
+                        <option value="Madhya Pradesh">Madhya Pradesh</option>
+                        <option value="Punjab">Punjab</option>
+                        <option value="Haryana">Haryana</option>
+                        <option value="All India">All India</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Class 10 Marks (%)</label>
+                    <input type="number" id="marks10" placeholder="e.g. 85" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Class 12 Marks (%)</label>
+                    <input type="number" id="marks12" placeholder="e.g. 82" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Annual Family Income (₹)</label>
+                    <input type="number" id="income" placeholder="e.g. 250000">
+                </div>
+                <div class="form-group">
+                    <label>Your Age</label>
+                    <input type="number" id="age" placeholder="e.g. 18" min="10" max="60">
+                </div>
+                <div class="form-group">
+                    <label>Course Level</label>
+                    <select id="course_level">
+                        <option value="Undergraduate">Undergraduate</option>
+                        <option value="Postgraduate">Postgraduate</option>
+                        <option value="Class 12">Class 12</option>
+                        <option value="Class 10">Class 10</option>
+                        <option value="Graduation">Graduation</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Course Name</label>
+                    <input type="text" id="course_name" placeholder="e.g. B.Sc, B.Tech, BA">
+                </div>
+            </div>
+
+            <div class="task-section">
+                <div class="task-label">What do you want to find?</div>
+                <div class="task-buttons">
+                    <button class="task-btn btn-scholarship" onclick="findScholarships()">
+                        <span class="btn-icon">🎓</span>
+                        Find Scholarships
+                    </button>
+                    <button class="task-btn btn-exam" onclick="findExams()">
+                        <span class="btn-icon">📋</span>
+                        Find Exams
+                    </button>
+                    <button class="task-btn btn-eligibility" onclick="showEligibilitySelect()">
+                        <span class="btn-icon">✅</span>
+                        Check Eligibility
+                    </button>
+                </div>
+
+                <div class="scholarship-select-wrapper" id="scholarshipSelectWrapper">
+                    <select class="scholarship-select" id="scholarship_select">
+                        <option value="">-- Select a Scholarship --</option>
+                        <option value="Buddy4Study ICICI Bank Domestic Education Loan Programme">ICICI Bank Education Loan</option>
+                        <option value="National Sports Excellence Scholarship 2025-26">National Sports Excellence</option>
+                        <option value="Tata Sons Merit Scholarship 2025-26">Tata Sons Merit Scholarship</option>
+                        <option value="Prime Minister Orphan Student Scholarship 2025-26">PM Orphan Student Scholarship</option>
+                        <option value="Vivo KanyaGyaan Scholarship Program 2025-26">Vivo KanyaGyaan (Girls Only)</option>
+                        <option value="JN Tata Endowment Loan Scholarship 2026-27">JN Tata Endowment Loan</option>
+                        <option value="Delhi Government SC ST OBC Minority School Scholarship">Delhi Govt SC/ST/OBC Scholarship</option>
+                        <option value="Infosys Foundation SC ST Technology Scholarship 2025-26">Infosys SC/ST Technology</option>
+                        <option value="Reliance Foundation Rural Girls Scholarship 2025-26">Reliance Rural Girls Scholarship</option>
+                    </select>
+                    <button class="check-btn" onclick="checkEligibility()">
+                        ✅ Check My Eligibility Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
     <div class="loading" id="loading">
-        ⏳ Finding opportunities for you...
+        <div class="loading-spinner"></div>
+        <p>Finding the best opportunities for you...</p>
     </div>
 
+    <!-- Results -->
     <div class="results" id="results"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Built with ❤️ for Indian Students | Meta PyTorch OpenEnv Hackathon 2026
+    </div>
+
 </div>
 
 <script>
-    const API = "";  // Empty = use same domain
+    const API = "https://kartikgod-student-opportunity-finder.hf.space";
+
+    // Generate background particles
+    function createParticles() {
+        const bg = document.getElementById('bgAnimation');
+        const colors = ['#6c63ff', '#f093fb', '#43e97b', '#f5576c', '#4facfe'];
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 80 + 20;
+            p.style.cssText = `
+                width: ${size}px;
+                height: ${size}px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                animation-delay: ${Math.random() * 5}s;
+                animation-duration: ${Math.random() * 6 + 6}s;
+            `;
+            bg.appendChild(p);
+        }
+    }
+    createParticles();
 
     function getStudentData() {
         return {
-            name: document.getElementById('name').value,
+            name: document.getElementById('name').value || "Student",
             gender: document.getElementById('gender').value,
             category: document.getElementById('category').value,
             state: document.getElementById('state').value,
-            marks_class10: parseFloat(document.getElementById('marks10').value),
-            marks_class12: parseFloat(document.getElementById('marks12').value),
-            annual_income: parseFloat(document.getElementById('income').value),
-            age: parseInt(document.getElementById('age').value),
+            marks_class10: parseFloat(document.getElementById('marks10').value) || 75,
+            marks_class12: parseFloat(document.getElementById('marks12').value) || 75,
+            annual_income: parseFloat(document.getElementById('income').value) || 300000,
+            age: parseInt(document.getElementById('age').value) || 18,
             course_level: document.getElementById('course_level').value,
-            course_name: document.getElementById('course_name').value,
+            course_name: document.getElementById('course_name').value || "B.Sc",
             task: "find_scholarships"
         };
     }
 
     function showLoading() {
+        document.getElementById('formSection').style.display = 'none';
         document.getElementById('loading').style.display = 'block';
         document.getElementById('results').style.display = 'none';
     }
 
-    function hideLoading() {
+    function showResults(html) {
         document.getElementById('loading').style.display = 'none';
         document.getElementById('results').style.display = 'block';
+        document.getElementById('results').innerHTML = html;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showForm() {
+        document.getElementById('formSection').style.display = 'block';
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showEligibilitySelect() {
+        const wrapper = document.getElementById('scholarshipSelectWrapper');
+        wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none';
     }
 
     function getScoreClass(score) {
-        if (score >= 0.8) return 'score-high';
-        if (score >= 0.5) return 'score-medium';
-        return 'score-low';
+        if (score >= 0.8) return 'match-high';
+        if (score >= 0.5) return 'match-medium';
+        return 'match-low';
+    }
+
+    function getScoreLabel(score) {
+        if (score >= 0.8) return `✨ ${Math.round(score * 100)}% Match`;
+        if (score >= 0.5) return `⚡ ${Math.round(score * 100)}% Match`;
+        return `⚠️ ${Math.round(score * 100)}% Match`;
     }
 
     function formatAmount(amount) {
-        if (amount === "Not specified" || amount === "Reimbursement based on income") return amount;
+        if (!amount || amount === "Not specified" || amount === "Reimbursement based on income") return amount;
         const num = parseInt(amount);
-        if (num >= 10000000) return `₹${(num/10000000).toFixed(1)} Crore`;
-        if (num >= 100000) return `₹${(num/100000).toFixed(1)} Lakh`;
-        if (num >= 1000) return `₹${(num/1000).toFixed(0)}K`;
-        return `₹${amount}`;
+        if (isNaN(num)) return amount;
+        if (num >= 10000000) return `₹${(num/10000000).toFixed(1)} Cr/yr`;
+        if (num >= 100000) return `₹${(num/100000).toFixed(1)} L/yr`;
+        if (num >= 1000) return `₹${(num/1000).toFixed(0)}K/yr`;
+        return `₹${num}/yr`;
     }
 
     async function findScholarships() {
         showLoading();
-        document.getElementById('scholarship_select').style.display = 'none';
-
         const student = getStudentData();
         student.task = "find_scholarships";
 
         try {
-            const response = await fetch(`/step`, {
+            const response = await fetch(`${API}/step`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(student)
@@ -408,42 +849,46 @@
             const data = await response.json();
 
             let html = `
-                <div class="summary-box">
-                    <h3>🎓 Found ${data.total_found} Scholarships for You!</h3>
-                    <p>Reward Score: ${data.reward} / 1.0</p>
+                <button class="back-btn" onclick="showForm()">← Back to Search</button>
+                <div class="results-header">
+                    <h2>🎓 ${data.total_found} Scholarships Found!</h2>
+                    <p style="color:rgba(255,255,255,0.6); margin:8px 0 12px;">Personalized for ${student.name}</p>
+                    <span class="score-badge">AI Score: ${data.reward} / 1.0</span>
                 </div>
             `;
 
             if (data.total_found === 0) {
-                html += `<div class="card"><p style="text-align:center; color:#666;">No scholarships found matching your profile. Try adjusting your details!</p></div>`;
+                html += `
+                    <div class="empty-state">
+                        <div class="empty-icon">😔</div>
+                        <p>No scholarships found for your profile.<br>Try changing your details!</p>
+                    </div>`;
             } else {
-                data.matched_scholarships.forEach(s => {
+                data.matched_scholarships.forEach((s, i) => {
                     html += `
-                        <div class="result-card">
-                            <h3>${s.name}</h3>
-                            <span class="match-score ${getScoreClass(s.match_score)}">
-                                Match: ${Math.round(s.match_score * 100)}%
-                            </span>
-                            <div class="amount">${formatAmount(s.amount)}/year</div>
-                            <div class="deadline">⏰ Deadline: ${s.deadline}</div>
-                            <div class="reason">${s.match_reason}</div>
-                        </div>
-                    `;
+                        <div class="result-card" style="animation-delay: ${i * 0.1}s">
+                            <div class="result-card-header">
+                                <h3>${s.name}</h3>
+                                <span class="match-badge ${getScoreClass(s.match_score)}">${getScoreLabel(s.match_score)}</span>
+                            </div>
+                            <div class="result-meta">
+                                <span class="meta-item meta-amount">💰 ${formatAmount(s.amount)}</span>
+                                <span class="meta-item meta-deadline">⏰ ${s.deadline}</span>
+                            </div>
+                            <div class="result-reason">${s.match_reason}</div>
+                        </div>`;
                 });
             }
 
-            document.getElementById('results').innerHTML = html;
-            hideLoading();
+            showResults(html);
         } catch (error) {
-            document.getElementById('results').innerHTML = `<div class="card"><p style="color:red;">Error connecting to server. Please try again!</p></div>`;
-            hideLoading();
+            showResults(`<button class="back-btn" onclick="showForm()">← Back</button>
+                <div class="empty-state"><div class="empty-icon">❌</div><p>Connection error. Please try again!</p></div>`);
         }
     }
 
     async function findExams() {
         showLoading();
-        document.getElementById('scholarship_select').style.display = 'none';
-
         const student = getStudentData();
         student.task = "find_exams";
 
@@ -456,97 +901,94 @@
             const data = await response.json();
 
             let html = `
-                <div class="summary-box" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
-                    <h3>📋 Found ${data.total_found} Exams for You!</h3>
-                    <p>Reward Score: ${data.reward} / 1.0</p>
+                <button class="back-btn" onclick="showForm()">← Back to Search</button>
+                <div class="results-header" style="background: linear-gradient(135deg, #2d0b2e, #1a0b2e);">
+                    <h2>📋 ${data.total_found} Exams Found!</h2>
+                    <p style="color:rgba(255,255,255,0.6); margin:8px 0 12px;">Suitable for ${student.name}</p>
+                    <span class="score-badge" style="background:rgba(240,147,251,0.2); border-color:rgba(240,147,251,0.4); color:#f093fb;">AI Score: ${data.reward} / 1.0</span>
                 </div>
             `;
 
             if (data.total_found === 0) {
-                html += `<div class="card"><p style="text-align:center; color:#666;">No exams found matching your profile!</p></div>`;
+                html += `<div class="empty-state"><div class="empty-icon">😔</div><p>No exams found for your profile!</p></div>`;
             } else {
-                data.matched_exams.forEach(e => {
+                data.matched_exams.forEach((e, i) => {
                     html += `
-                        <div class="result-card" style="border-left-color: #f5576c;">
-                            <h3>${e.name}</h3>
-                            <p style="color:#666; font-size:0.9em;">${e.full_name}</p>
-                            <span class="match-score ${getScoreClass(e.match_score)}">
-                                Match: ${Math.round(e.match_score * 100)}%
-                            </span>
-                            <div style="color:#8e44ad; font-weight:600;">Type: ${e.exam_type}</div>
-                            <div class="amount">${e.salary_range}</div>
-                            <div class="deadline">⏰ Deadline: ${e.deadline}</div>
-                            ${e.age_relaxation !== 'No relaxation' ? `<div style="color:#27ae60; font-size:0.9em;">✅ ${e.age_relaxation}</div>` : ''}
-                            <div class="reason">${e.match_reason}</div>
-                        </div>
-                    `;
+                        <div class="result-card" style="animation-delay: ${i * 0.1}s; border-left: 4px solid #f093fb;">
+                            <div class="result-card-header">
+                                <h3>${e.name}</h3>
+                                <span class="match-badge ${getScoreClass(e.match_score)}">${getScoreLabel(e.match_score)}</span>
+                            </div>
+                            <p style="font-size:0.82em; color:#888; margin-bottom:10px;">${e.full_name}</p>
+                            <div class="result-meta">
+                                <span class="meta-item meta-type">🏛️ ${e.exam_type}</span>
+                                <span class="meta-item meta-salary">💼 ${e.salary_range}</span>
+                                <span class="meta-item meta-deadline">⏰ ${e.deadline}</span>
+                            </div>
+                            ${e.age_relaxation !== 'No relaxation' ? `<div style="color:#27ae60; font-size:0.85em; margin:8px 0;">✅ ${e.age_relaxation}</div>` : ''}
+                            <div class="result-reason">${e.match_reason}</div>
+                        </div>`;
                 });
             }
 
-            document.getElementById('results').innerHTML = html;
-            hideLoading();
+            showResults(html);
         } catch (error) {
-            document.getElementById('results').innerHTML = `<div class="card"><p style="color:red;">Error connecting to server. Please try again!</p></div>`;
-            hideLoading();
+            showResults(`<button class="back-btn" onclick="showForm()">← Back</button>
+                <div class="empty-state"><div class="empty-icon">❌</div><p>Connection error. Please try again!</p></div>`);
         }
     }
 
     async function checkEligibility() {
-        const select = document.getElementById('scholarship_select');
-
-        if (select.style.display === 'none') {
-            select.style.display = 'block';
+        const scholarshipName = document.getElementById('scholarship_select').value;
+        if (!scholarshipName) {
+            alert('Please select a scholarship first!');
             return;
         }
 
         showLoading();
-
         const student = getStudentData();
-        const scholarshipName = select.value;
 
         try {
             const response = await fetch(`${API}/step/eligibility`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    student: student,
-                    scholarship_name: scholarshipName
-                })
+                body: JSON.stringify({ student, scholarship_name: scholarshipName })
             });
             const data = await response.json();
 
+            const isEligible = data.is_eligible;
+            const score = Math.round(data.eligibility_score * 100);
+
             let html = `
-                <div class="summary-box" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
-                    <h3>✅ Eligibility Check Result</h3>
-                    <p>${scholarshipName}</p>
-                </div>
-                <div class="card">
-                    <div class="eligibility-result">
-                        <div class="${data.is_eligible ? 'eligible-yes' : 'eligible-no'}">
-                            ${data.is_eligible ? '✅ YOU ARE ELIGIBLE!' : '❌ NOT ELIGIBLE YET'}
+                <button class="back-btn" onclick="showForm()">← Back to Search</button>
+                <div class="eligibility-card">
+                    <div class="eligibility-status ${isEligible ? 'status-eligible' : 'status-not-eligible'}">
+                        <div class="status-icon">${isEligible ? '🎉' : '😔'}</div>
+                        <div class="status-text">${isEligible ? 'YOU ARE ELIGIBLE!' : 'NOT ELIGIBLE YET'}</div>
+                        <p style="font-size:0.9em; margin-top:5px;">${data.message}</p>
+                        <div style="margin-top:15px;">
+                            <div style="background:rgba(0,0,0,0.1); border-radius:50px; height:8px; width:200px; margin:0 auto 8px;">
+                                <div style="background:${isEligible ? '#28a745' : '#dc3545'}; width:${score}%; height:100%; border-radius:50px; transition:width 1s ease;"></div>
+                            </div>
+                            <span style="font-size:0.9em; font-weight:700;">${score}% Eligibility Score</span>
                         </div>
-                        <p style="font-size:1.2em; margin:10px 0;">Score: ${Math.round(data.eligibility_score * 100)}%</p>
-                        <p>${data.message}</p>
                     </div>
-                    <div class="criteria-list">
-                        <h3 style="margin-bottom:10px;">Criteria Check:</h3>
-            `;
 
-            data.passed_criteria.forEach(p => {
-                html += `<div class="criteria-pass">✅ ${p}</div>`;
-            });
+                    <div class="criteria-section">
+                        <h4>✅ Passed Criteria (${data.passed_criteria.length})</h4>
+                        ${data.passed_criteria.map(p => `<div class="criteria-item criteria-pass">✅ ${p}</div>`).join('')}
 
-            data.failed_criteria.forEach(f => {
-                html += `<div class="criteria-fail">❌ ${f}</div>`;
-            });
+                        ${data.failed_criteria.length > 0 ? `
+                        <h4 style="margin-top:15px;">❌ Failed Criteria (${data.failed_criteria.length})</h4>
+                        ${data.failed_criteria.map(f => `<div class="criteria-item criteria-fail">❌ ${f}</div>`).join('')}
+                        ` : ''}
+                    </div>
+                </div>`;
 
-            html += `</div></div>`;
-
-            document.getElementById('results').innerHTML = html;
-            hideLoading();
+            showResults(html);
         } catch (error) {
-            document.getElementById('results').innerHTML = `<div class="card"><p style="color:red;">Error connecting to server. Please try again!</p></div>`;
-            hideLoading();
+            showResults(`<button class="back-btn" onclick="showForm()">← Back</button>
+                <div class="empty-state"><div class="empty-icon">❌</div><p>Connection error. Please try again!</p></div>`);
         }
     }
 </script>
