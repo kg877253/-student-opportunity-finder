@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Opportunity Finder 🎓</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #667eea;
+        }
+
+        .task-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .task-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .task-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-scholarship {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-exam {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .btn-eligibility {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: 1.2em;
+            display: none;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .result-card {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-card h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .result-card .amount {
+            color: #27ae60;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .result-card .deadline {
+            color: #e74c3c;
+            font-size: 0.9em;
+        }
+
+        .match-score {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .score-high { background: #d4edda; color: #155724; }
+        .score-medium { background: #fff3cd; color: #856404; }
+        .score-low { background: #f8d7da; color: #721c24; }
+
+        .reason {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .eligibility-result {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .eligible-yes {
+            color: #27ae60;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .eligible-no {
+            color: #e74c3c;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .criteria-list {
+            text-align: left;
+            margin-top: 15px;
+        }
+
+        .criteria-pass {
+            color: #27ae60;
+            padding: 3px 0;
+        }
+
+        .criteria-fail {
+            color: #e74c3c;
+            padding: 3px 0;
+        }
+
+        .scholarship-select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .summary-box h3 {
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .task-buttons { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🎓 Student Opportunity Finder</h1>
+        <p>Find scholarships and government exams perfect for YOU!</p>
+        <p style="font-size: 0.9em; margin-top: 5px; opacity: 0.8;">Built for Indian Students | Powered by AI</p>
+    </div>
+
+    <div class="card">
+        <h2>📝 Enter Your Details</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" id="name" placeholder="Enter your name" value="Kartik">
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <select id="gender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="category">
+                    <option value="General">General</option>
+                    <option value="OBC">OBC</option>
+                    <option value="SC">SC</option>
+                    <option value="ST">ST</option>
+                    <option value="Minority">Minority</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>State</label>
+                <select id="state">
+                    <option value="Delhi">Delhi</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="UP">Uttar Pradesh</option>
+                    <option value="Bihar">Bihar</option>
+                    <option value="Rajasthan">Rajasthan</option>
+                    <option value="Gujarat">Gujarat</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                    <option value="Karnataka">Karnataka</option>
+                    <option value="West Bengal">West Bengal</option>
+                    <option value="All India">All India</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Class 10 Marks (%)</label>
+                <input type="number" id="marks10" placeholder="e.g. 85" value="85" min="0" max="100">
+            </div>
+            <div class="form-group">
+                <label>Class 12 Marks (%)</label>
+                <input type="number" id="marks12" placeholder="e.g. 82" value="82" min="0" max="100">
+            </div>
+            <div class="form-group">
+                <label>Annual Family Income (₹)</label>
+                <input type="number" id="income" placeholder="e.g. 250000" value="250000">
+            </div>
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" id="age" placeholder="e.g. 18" value="18" min="10" max="60">
+            </div>
+            <div class="form-group">
+                <label>Course Level</label>
+                <select id="course_level">
+                    <option value="Undergraduate">Undergraduate</option>
+                    <option value="Postgraduate">Postgraduate</option>
+                    <option value="Class 12">Class 12</option>
+                    <option value="Class 10">Class 10</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Course Name</label>
+                <input type="text" id="course_name" placeholder="e.g. B.Sc, B.Tech" value="B.Sc">
+            </div>
+        </div>
+
+        <select class="scholarship-select" id="scholarship_select">
+            <option value="Buddy4Study ICICI Bank Domestic Education Loan Programme">ICICI Bank Education Loan</option>
+            <option value="National Sports Excellence Scholarship 2025-26">National Sports Excellence Scholarship</option>
+            <option value="Tata Sons Merit Scholarship 2025-26">Tata Sons Merit Scholarship</option>
+            <option value="Prime Minister Orphan Student Scholarship 2025-26">PM Orphan Student Scholarship</option>
+            <option value="Vivo KanyaGyaan Scholarship Program 2025-26">Vivo KanyaGyaan Scholarship</option>
+            <option value="JN Tata Endowment Loan Scholarship 2026-27">JN Tata Endowment Loan</option>
+            <option value="Delhi Government SC ST OBC Minority School Scholarship">Delhi Govt SC/ST/OBC Scholarship</option>
+            <option value="Infosys Foundation SC ST Technology Scholarship 2025-26">Infosys SC/ST Technology Scholarship</option>
+            <option value="Reliance Foundation Rural Girls Scholarship 2025-26">Reliance Rural Girls Scholarship</option>
+        </select>
+
+        <div class="task-buttons">
+            <button class="task-btn btn-scholarship" onclick="findScholarships()">
+                🎓 Find Scholarships
+            </button>
+            <button class="task-btn btn-exam" onclick="findExams()">
+                📋 Find Exams
+            </button>
+            <button class="task-btn btn-eligibility" onclick="checkEligibility()">
+                ✅ Check Eligibility
+            </button>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        ⏳ Finding opportunities for you...
+    </div>
+
+    <div class="results" id="results"></div>
+</div>
+
+<script>
+    const API = "https://kartikgod-student-opportunity-finder.hf.space";
+
+    function getStudentData() {
+        return {
+            name: document.getElementById('name').value,
+            gender: document.getElementById('gender').value,
+            category: document.getElementById('category').value,
+            state: document.getElementById('state').value,
+            marks_class10: parseFloat(document.getElementById('marks10').value),
+            marks_class12: parseFloat(document.getElementById('marks12').value),
+            annual_income: parseFloat(document.getElementById('income').value),
+            age: parseInt(document.getElementById('age').value),
+            course_level: document.getElementById('course_level').value,
+            course_name: document.getElementById('course_name').value,
+            task: "find_scholarships"
+        };
+    }
+
+    function showLoading() {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('results').style.display = 'none';
+    }
+
+    function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+    }
+
+    function getScoreClass(score) {
+        if (score >= 0.8) return 'score-high';
+        if (score >= 0.5) return 'score-medium';
+        return 'score-low';
+    }
+
+    function formatAmount(amount) {
+        if (amount === "Not specified" || amount === "Reimbursement based on income") return amount;
+        const num = parseInt(amount);
+        if (num >= 10000000) return `₹${(num/10000000).toFixed(1)} Crore`;
+        if (num >= 100000) return `₹${(num/100000).toFixed(1)} Lakh`;
+        if (num >= 1000) return `₹${(num/1000).toFixed(0)}K`;
+        return `₹${amount}`;
+    }
+
+    async function findScholarships() {
+        showLoading();
+        document.getElementById('scholarship_select').style.display = 'none';
+
+        const student = getStudentData();
+        student.task = "find_scholarships";
+
+        try {
+            const response = await fetch(`${API}/step`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(student)
+            });
+            const data = await response.json();
+
+            let html = `
+                <div class="summary-box">
+                    <h3>🎓 Found ${data.total_found} Scholarships for You!</h3>
+                    <p>Reward Score: ${data.reward} / 1.0</p>
+                </div>
+            `;
+
+            if (data.total_found === 0) {
+                html += `<div class="card"><p style="text-align:center; color:#666;">No scholarships found matching your profile. Try adjusting your details!</p></div>`;
+            } else {
+                data.matched_scholarships.forEach(s => {
+                    html += `
+                        <div class="result-card">
+                            <h3>${s.name}</h3>
+                            <span class="match-score ${getScoreClass(s.match_score)}">
+                                Match: ${Math.round(s.match_score * 100)}%
+                            </span>
+                            <div class="amount">${formatAmount(s.amount)}/year</div>
+                            <div class="deadline">⏰ Deadline: ${s.deadline}</div>
+                            <div class="reason">${s.match_reason}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('results').innerHTML = html;
+            hideLoading();
+        } catch (error) {
+            document.getElementById('results').innerHTML = `<div class="card"><p style="color:red;">Error connecting to server. Please try again!</p></div>`;
+            hideLoading();
+        }
+    }
+
+    async function findExams() {
+        showLoading();
+        document.getElementById('scholarship_select').style.display = 'none';
+
+        const student = getStudentData();
+        student.task = "find_exams";
+
+        try {
+            const response = await fetch(`${API}/step`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(student)
+            });
+            const data = await response.json();
+
+            let html = `
+                <div class="summary-box" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <h3>📋 Found ${data.total_found} Exams for You!</h3>
+                    <p>Reward Score: ${data.reward} / 1.0</p>
+                </div>
+            `;
+
+            if (data.total_found === 0) {
+                html += `<div class="card"><p style="text-align:center; color:#666;">No exams found matching your profile!</p></div>`;
+            } else {
+                data.matched_exams.forEach(e => {
+                    html += `
+                        <div class="result-card" style="border-left-color: #f5576c;">
+                            <h3>${e.name}</h3>
+                            <p style="color:#666; font-size:0.9em;">${e.full_name}</p>
+                            <span class="match-score ${getScoreClass(e.match_score)}">
+                                Match: ${Math.round(e.match_score * 100)}%
+                            </span>
+                            <div style="color:#8e44ad; font-weight:600;">Type: ${e.exam_type}</div>
+                            <div class="amount">${e.salary_range}</div>
+                            <div class="deadline">⏰ Deadline: ${e.deadline}</div>
+                            ${e.age_relaxation !== 'No relaxation' ? `<div style="color:#27ae60; font-size:0.9em;">✅ ${e.age_relaxation}</div>` : ''}
+                            <div class="reason">${e.match_reason}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('results').innerHTML = html;
+            hideLoading();
+        } catch (error) {
+            document.getElementById('results').innerHTML = `<div class="card"><p style="color:red;">Error connecting to server. Please try again!</p></div>`;
+            hideLoading();
+        }
+    }
+
+    async function checkEligibility() {
+        const select = document.getElementById('scholarship_select');
+
+        if (select.style.display === 'none') {
+            select.style.display = 'block';
+            return;
+        }
+
+        showLoading();
+
+        const student = getStudentData();
+        const scholarshipName = select.value;
+
+        try {
+            const response = await fetch(`${API}/step/eligibility`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    student: student,
+                    scholarship_name: scholarshipName
+                })
+            });
+            const data = await response.json();
+
+            let html = `
+                <div class="summary-box" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    <h3>✅ Eligibility Check Result</h3>
+                    <p>${scholarshipName}</p>
+                </div>
+                <div class="card">
+                    <div class="eligibility-result">
+                        <div class="${data.is_eligible ? 'eligible-yes' : 'eligible-no'}">
+                            ${data.is_eligible ? '✅ YOU ARE ELIGIBLE!' : '❌ NOT ELIGIBLE YET'}
+                        </div>
+                        <p style="font-size:1.2em; margin:10px 0;">Score: ${Math.round(data.eligibility_score * 100)}%</p>
+                        <p>${data.message}</p>
+                    </div>
+                    <div class="criteria-list">
+                        <h3 style="margin-bottom:10px;">Criteria Check:</h3>
+            `;
+
+            data.passed_criteria.forEach(p => {
+                html += `<div class="criteria-pass">✅ ${p}</div>`;
+            });
+
+            data.failed_criteria.forEach(f => {
+                html += `<div class="criteria-fail">❌ ${f}</div>`;
+            });
+
+            html += `</div></div>`;
+
+            document.getElementById('results').innerHTML = html;
+            hideLoading();
+        } catch (error) {
+            document.getElementById('results').innerHTML = `<div class="card"><p style="color:red;">Error connecting to server. Please try again!</p></div>`;
+            hideLoading();
+        }
+    }
+</script>
+
+</body>
+</html>
