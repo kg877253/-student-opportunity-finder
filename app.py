@@ -1,7 +1,9 @@
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from models import StudentAction, EligibilityAction
 from environment import ScholarshipEnvironment
 from graders import grade_task1, grade_task2, grade_task3
+import os
 
 app = FastAPI(
     title="Student Opportunity Finder",
@@ -12,13 +14,25 @@ app = FastAPI(
 env = ScholarshipEnvironment()
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def home():
-    return {
-        "message": "Student Opportunity Finder Environment is running!",
-        "version": "0.1.0",
-        "tasks": ["find_scholarships", "find_exams", "check_eligibility"]
-    }
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except:
+        return HTMLResponse("""
+        <h1>Student Opportunity Finder</h1>
+        <p>Visit <a href='/docs'>/docs</a> to use the API</p>
+        """)
+
+
+@app.get("/ui", response_class=HTMLResponse)
+def ui():
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except:
+        return HTMLResponse("<h1>UI file not found!</h1>")
 
 
 @app.get("/health")
