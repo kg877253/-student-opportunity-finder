@@ -1,78 +1,59 @@
-# 🚀 AI-Powered Student Opportunity Recommender
-
-An intelligent RL-based environment that helps Indian students discover
-**scholarships** and **government exams** they are eligible for.
-
+---
+title: Student Opportunity Finder
+emoji: 🎓
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
 ---
 
-## 🌍 Problem Statement
+# Student Opportunity Finder - OpenEnv Environment
 
-Millions of Indian students miss out on scholarships and government
-opportunities due to lack of awareness and complex eligibility criteria.
+An RL environment that helps Indian students discover scholarships
+and government exams they are eligible for.
 
-This project solves that by:
-- Matching students with relevant scholarships
-- Suggesting government exams based on eligibility
-- Providing detailed eligibility breakdown
+## What It Does
 
----
+This environment takes a student profile as input and finds:
+- Matching scholarships with eligibility scores and reasons
+- Government exams the student can apply for
+- Detailed eligibility check for any specific scholarship
 
-## 🧠 Solution Approach
+## Tasks
 
-We built a **Reinforcement Learning-based environment** where:
+### Task 1 - Scholarship Finder (Easy)
+Give student profile, get list of matching scholarships with
+match scores between 0.0 and 1.0 and detailed reasons.
 
-- The **agent** decides whether to recommend:
-  - Scholarships OR
-  - Government Exams
+### Task 2 - Exam Finder (Medium)
+Give student profile, get list of government exams with
+eligibility details, salary range and age relaxation.
 
-- The system evaluates:
-  - Academic performance
-  - Income level
-  - Category (OBC/SC/ST/etc)
-  - Age and course
+### Task 3 - Eligibility Checker (Hard)
+Give student profile and scholarship name, get detailed
+pass or fail result for every single eligibility condition.
 
-- The agent improves over time using **reward signals**
+## Action Space
 
----
+Student provides:
+- name, gender, category, state
+- marks_class10, marks_class12
+- annual_income, course_level, course_name, age
+- task (find_scholarships / find_exams)
 
-## ⚙️ System Flow
-User Input → FastAPI → Environment → Matching Logic → Result → Reward → Learning
+## Baseline Scores
 
----
+- Task 1 Scholarship Finder: 1.0
+- Task 2 Exam Finder: 1.0
+- Task 3 Eligibility Checker: 1.0
+- Average: 1.0
 
-## 📌 Features
+## Setup
 
-✅ Scholarship Recommendation  
-✅ Government Exam Finder  
-✅ Eligibility Checker (detailed pass/fail)  
-✅ Reinforcement Learning integration  
-✅ Dockerized deployment  
-✅ Baseline scoring system  
+pip install -r requirements.txt
+uvicorn app:app --host 0.0.0.0 --port 8000
 
----
+## Built By
 
-## 🧪 Example Input
-
-```json
-{
-  "name": "Kartik",
-  "gender": "Male",
-  "category": "OBC",
-  "state": "Delhi",
-  "marks_class10": 85,
-  "marks_class12": 88,
-  "annual_income": 200000,
-  "course_level": "Undergraduate",
-  "course_name": "B.Sc",
-  "age": 18,
-  "task": "find_scholarships"
-}
-Scholarship Matches:
-
-1. XYZ Scholarship → Match Score: 0.9
-   ✔ Income criteria satisfied
-   ✔ Marks above threshold
-
-2. ABC Scholarship → Match Score: 0.6
-   ✔ Marks satisfied
-   ❌ Income slightly above limit
+Kartik and Team - DU Students
+Meta PyTorch OpenEnv Hackathon 2026
