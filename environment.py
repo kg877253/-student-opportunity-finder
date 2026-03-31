@@ -53,6 +53,7 @@ class ScholarshipEnvironment:
         total = sum(self.weights.values())
         for k in self.weights:
             self.weights[k] = max(0.1, self.weights[k] / total)
+            print("UPDATED WEIGHTS:", self.weights)
 
     def step(self, action):
         if self.state is None:
