@@ -1,4 +1,103 @@
 scholarships = [
+    {
+    "name": "Central Sector Scheme of Scholarship 2025-26",
+    "amount": 12000,
+    "deadline": "31-10-2026",
+    "gender": "All",
+    "nationality": "Indian",
+    "state": "All India",
+    "category": "All",
+    "min_marks_class12": 80,
+    "max_income": 450000,
+    "course_level": ["Undergraduate", "Postgraduate"],
+    "type": "Merit Scholarship",
+    "special_conditions": [
+        "Must be in top 20 percentile of respective board",
+        "Income below 4.5 lakh per year",
+        "Must be studying regular course"
+    ]
+    },
+
+   {
+    "name": "Post Matric Scholarship for SC Students 2025-26",
+    "amount": 24000,
+    "deadline": "30-11-2026",
+    "gender": "All",
+    "nationality": "Indian",
+    "state": "All India",
+    "category": ["SC"],
+    "min_marks_class12": 0,
+    "max_income": 250000,
+    "course_level": ["Undergraduate", "Postgraduate"],
+    "type": "Need Based Scholarship",
+    "special_conditions": [
+        "Must belong to SC category",
+        "Annual family income below 2.5 lakh",
+        "Must be studying post-matric level"
+    ]
+    },
+
+    {
+    "name": "Pragati Scholarship for Girls 2025-26",
+    "amount": 50000,
+    "deadline": "31-08-2026",
+    "gender": "Female",
+    "nationality": "Indian",
+    "state": "All India",
+    "category": "All",
+    "min_marks_class12": 60,
+    "max_income": 800000,
+    "course_level": ["Undergraduate"],
+    "allowed_courses": ["B.Tech", "B.E.", "B.Arch", "B.Planning"],
+    "type": "Merit cum Need Scholarship",
+    "special_conditions": [
+        "Only for girl students in technical courses",
+        "Must be in AICTE approved institution",
+        "Income below 8 lakh per year",
+        "Minimum 60% in Class 12"
+    ]
+    },
+
+    {
+    "name": "HDFC Bank Educational Crisis Scholarship 2025-26",
+    "amount": 75000,
+    "deadline": "30-09-2026",
+    "gender": "All",
+    "nationality": "Indian",
+    "state": "All India",
+    "category": "All",
+    "min_marks_class12": 55,
+    "max_income": 500000,
+    "course_level": ["Undergraduate", "Postgraduate"],
+    "type": "Need Based Scholarship",
+    "special_conditions": [
+        "For students facing financial crisis",
+        "Parent must have lost job or income source",
+        "Minimum 55% marks in Class 12",
+        "Income below 5 lakh per year"
+    ]
+    },
+
+    {
+    "name": "Begum Hazrat Mahal National Scholarship 2025-26",
+    "amount": 12000,
+    "deadline": "30-09-2026",
+    "gender": "Female",
+    "nationality": "Indian",
+    "state": "All India",
+    "category": ["Minority"],
+    "min_marks_class12": 50,
+    "max_income": 200000,
+    "course_level": ["Undergraduate"],
+    "type": "Need Based Scholarship",
+    "special_conditions": [
+        "Only for Muslim, Christian, Sikh, Buddhist, Jain or Parsi girls",
+        "Studying in class 9 to 12 or undergraduate",
+        "Income below 2 lakh per year",
+        "Minimum 50% marks in previous class"
+    ]
+    },
+
 
     {
         "name": "Vivo KanyaGyaan Scholarship Program 2025-26",

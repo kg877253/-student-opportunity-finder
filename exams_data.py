@@ -1,4 +1,124 @@
 exams = [
+
+{
+    "name": "IBPS Clerk 2025",
+    "full_name": "Institute of Banking Personnel Selection Clerk",
+    "conducting_body": "IBPS",
+    "deadline": "15-05-2026",
+    "min_age": 20,
+    "max_age": 28,
+    "min_qualification": "Graduation",
+    "allowed_courses": ["All"],
+    "category_age_relaxation": {
+        "OBC": 3,
+        "SC": 5,
+        "ST": 5
+    },
+    "state": "All India",
+    "gender": "All",
+    "category": "All",
+    "exam_type": "Banking",
+    "salary_range": "11765 to 31540 per month",
+    "special_conditions": [
+        "Must have completed graduation",
+        "Basic computer knowledge required",
+        "Age between 20 and 28 years"
+    ]
+},
+
+{
+    "name": "CTET 2025",
+    "full_name": "Central Teacher Eligibility Test",
+    "conducting_body": "CBSE",
+    "deadline": "05-04-2026",
+    "min_age": 18,
+    "max_age": 99,
+    "min_qualification": "Graduation",
+    "allowed_courses": ["All"],
+    "state": "All India",
+    "gender": "All",
+    "category": "All",
+    "exam_type": "Teaching",
+    "salary_range": "35400 to 112400 per month",
+    "special_conditions": [
+        "Must have completed graduation with B.Ed",
+        "No upper age limit",
+        "Required to teach in central government schools"
+    ]
+},
+
+{
+    "name": "SBI PO 2025",
+    "full_name": "State Bank of India Probationary Officer",
+    "conducting_body": "State Bank of India",
+    "deadline": "20-04-2026",
+    "min_age": 21,
+    "max_age": 30,
+    "min_qualification": "Graduation",
+    "allowed_courses": ["All"],
+    "category_age_relaxation": {
+        "OBC": 3,
+        "SC": 5,
+        "ST": 5
+    },
+    "state": "All India",
+    "gender": "All",
+    "category": "All",
+    "exam_type": "Banking",
+    "salary_range": "27620 to 63840 per month",
+    "special_conditions": [
+        "Must have completed graduation",
+        "Age between 21 and 30 years",
+        "Must be Indian citizen"
+    ]
+},
+
+{
+    "name": "GATE 2026",
+    "full_name": "Graduate Aptitude Test in Engineering",
+    "conducting_body": "IIT and IISc",
+    "deadline": "26-09-2026",
+    "min_age": 0,
+    "max_age": 99,
+    "min_qualification": "Graduation",
+    "allowed_courses": ["B.Tech", "B.E.", "B.Sc"],
+    "state": "All India",
+    "gender": "All",
+    "category": "All",
+    "exam_type": "Entrance Exam",
+    "salary_range": "Not applicable - for PG admission and PSU jobs",
+    "special_conditions": [
+        "Must be in final year or completed graduation in engineering",
+        "No age limit",
+        "Valid for 3 years for PSU recruitment"
+    ]
+},
+
+{
+    "name": "DSSSB Various Posts 2025",
+    "full_name": "Delhi Subordinate Services Selection Board",
+    "conducting_body": "DSSSB",
+    "deadline": "15-05-2026",
+    "min_age": 18,
+    "max_age": 27,
+    "min_qualification": "Class 12",
+    "allowed_courses": ["All"],
+    "category_age_relaxation": {
+        "OBC": 3,
+        "SC": 5,
+        "ST": 5
+    },
+    "state": "Delhi",
+    "gender": "All",
+    "category": "All",
+    "exam_type": "Government Job",
+    "salary_range": "19900 to 63200 per month",
+    "special_conditions": [
+        "Must be Delhi domicile",
+        "Various posts available",
+        "Age between 18 and 27 years"
+    ]
+},
     {
         "name": "SSC CGL 2025",
         "full_name": "Staff Selection Commission Combined Graduate Level",
