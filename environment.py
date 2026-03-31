@@ -18,6 +18,15 @@ class ScholarshipEnvironment:
     def __init__(self):
         self.state = None
         self.current_action = None
+
+        # 🔥 RL WEIGHTS (NEW)
+        self.weights = {
+            "marks": 1.0,
+            "income": 1.0,
+            "age": 1.0,
+            "course": 1.0
+        }
+
         self.reset()
 
     def reset(self):
@@ -28,6 +37,22 @@ class ScholarshipEnvironment:
             total_reward=0.0
         )
         return self.state
+
+    # ---------------- RL LEARNING ----------------
+
+    def update_weights(self, reward):
+        lr = 0.1
+
+        for k in self.weights:
+            if reward > 0.7:
+                self.weights[k] += lr
+            else:
+                self.weights[k] -= lr
+
+        # normalize
+        total = sum(self.weights.values())
+        for k in self.weights:
+            self.weights[k] = max(0.1, self.weights[k] / total)
 
     def step(self, action):
         if self.state is None:
@@ -67,6 +92,11 @@ class ScholarshipEnvironment:
                 ))
 
         matched.sort(key=lambda x: x.match_score, reverse=True)
+        import random
+
+        # 🔥 RL exploration
+        if random.random() < 0.15:
+            random.shuffle(matched)
         reward = min(1.0, len(matched) / 5)
         self.state.total_reward += reward
 
@@ -100,14 +130,15 @@ class ScholarshipEnvironment:
 
         min_marks = scholarship.get("min_marks_class12", 0)
         if action.marks_class12 < min_marks:
-            score -= 0.4
+            score -= 0.4 * self.weights["marks"]
             deductions.append(f"Need {min_marks}% in Class 12 but you have {action.marks_class12}%")
         else:
             reasons.append(f"Your Class 12 marks {action.marks_class12}% meet the requirement")
 
         max_income = scholarship.get("max_income", 99999999)
         if action.annual_income > max_income:
-            score -= 0.4
+            score -= 0.4 * self.weights["income"]
+
             deductions.append(f"Income limit is {max_income} but yours is {action.annual_income}")
         else:
             reasons.append(f"Your income {action.annual_income} is within the limit")
@@ -115,14 +146,14 @@ class ScholarshipEnvironment:
         min_age = scholarship.get("min_age", 0)
         max_age = scholarship.get("max_age", 99)
         if action.age < min_age or action.age > max_age:
-            score -= 0.3
+            score -= 0.3 * self.weights["age"]
             deductions.append(f"Age requirement is {min_age} to {max_age} but you are {action.age}")
         else:
             reasons.append(f"Your age {action.age} is within the limit")
 
         schol_courses = scholarship.get("course_level", ["All"])
         if "All" not in schol_courses and action.course_level not in schol_courses:
-            score -= 0.3
+            score -= 0.3 * self.weights["course"]
             deductions.append(f"This scholarship is for {schol_courses} only")
         else:
             reasons.append(f"Your course level matches!")

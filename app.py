@@ -175,3 +175,7 @@ def grader():
             )
         }
     }
+@app.post("/feedback")
+def feedback(data: dict):
+    env.update_weights(data["reward"])
+    return {"message": "Learning updated successfully"}
