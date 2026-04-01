@@ -99,6 +99,26 @@ class StudentOpportunityTests(unittest.TestCase):
         self.assertIn("done", body)
         self.assertIn("info", body)
 
+    def test_rl_reset_returns_multiturn_observation(self):
+        response = self.client.post("/rl/reset", json={"task_name": "easy_scholarship_shortlist"})
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body["task_name"], "easy_scholarship_shortlist")
+        self.assertIn("critical_missing_fields", body)
+        self.assertIn("remaining_steps", body)
+
+    def test_rl_step_accepts_multiturn_action(self):
+        self.client.post("/rl/reset", json={"task_name": "easy_scholarship_shortlist"})
+        response = self.client.post(
+            "/rl/step",
+            json={"action_type": "ask_profile_field", "field_name": "annual_income"},
+        )
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("observation", body)
+        self.assertIn("reward", body)
+        self.assertEqual(body["observation"]["revealed_profile"]["annual_income"], 200000)
+
 
 if __name__ == "__main__":
     unittest.main()

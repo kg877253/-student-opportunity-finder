@@ -152,7 +152,8 @@
         }
 
         input,
-        select {
+        select,
+        textarea {
             width: 100%;
             border: 1px solid #d9e1ea;
             border-radius: var(--radius-md);
@@ -163,8 +164,14 @@
             transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
         }
 
+        textarea {
+            min-height: 124px;
+            resize: vertical;
+        }
+
         input:focus,
-        select:focus {
+        select:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 4px rgba(15, 157, 138, 0.12);
@@ -391,6 +398,156 @@
             color: var(--danger);
         }
 
+        .section-copy {
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        .rl-shell {
+            margin-top: 22px;
+        }
+
+        .rl-toolbar,
+        .rl-actions {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 16px;
+            align-items: end;
+            margin-bottom: 18px;
+        }
+
+        .rl-actions {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .rl-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: end;
+            margin-bottom: 18px;
+        }
+
+        .rl-action-button {
+            width: 100%;
+            border: none;
+            border-radius: 16px;
+            padding: 14px 16px;
+            color: white;
+            font: inherit;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        }
+
+        .rl-action-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button-multiturn {
+            background: linear-gradient(135deg, #6a43d1, #3d71e2);
+        }
+
+        .button-baseline {
+            background: linear-gradient(135deg, #1d4d7a, #0f9d8a);
+        }
+
+        .button-reveal {
+            background: linear-gradient(135deg, #0f9d8a, #2eb8a3);
+        }
+
+        .button-draft {
+            background: linear-gradient(135deg, #f27c38, #ff9b58);
+        }
+
+        .button-finalize {
+            background: linear-gradient(135deg, #1d4d7a, #2f6da3);
+        }
+
+        .button-outline {
+            background: #eef4fb;
+            color: var(--text);
+        }
+
+        .rl-results {
+            margin-top: 12px;
+        }
+
+        .rl-header {
+            padding: 20px 22px;
+            border-radius: 22px;
+            background: #0d2238;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .rl-header h2 {
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+        }
+
+        .rl-header p {
+            color: rgba(255, 255, 255, 0.76);
+            line-height: 1.6;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .rl-panels {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .rl-panel {
+            background: #f4f8fc;
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        .rl-panel h3 {
+            font-size: 0.96rem;
+            margin-bottom: 10px;
+        }
+
+        .rl-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .rl-list-item {
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: white;
+            color: #3d4e66;
+            line-height: 1.5;
+        }
+
+        .helper-text {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 0.84rem;
+            line-height: 1.5;
+        }
+
         .footer {
             text-align: center;
             margin-top: 18px;
@@ -401,7 +558,14 @@
         @media (max-width: 860px) {
             .stats,
             .task-buttons,
-            .grid {
+            .grid,
+            .rl-toolbar,
+            .rl-actions,
+            .rl-panels {
+                grid-template-columns: 1fr;
+            }
+
+            .rl-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -586,11 +750,80 @@
 
     <section id="results" class="results"></section>
 
+    <section id="rlSection" class="card rl-shell">
+        <div class="section-title">Multi-Turn Scholarship Guidance RL Environment</div>
+        <p class="section-copy">
+            This stronger RL version runs inside the same website. Start an episode, reveal hidden student fields,
+            draft scholarship or exam guidance, and finalize before the turn budget runs out.
+        </p>
+
+        <div class="rl-toolbar">
+            <div class="field">
+                <label for="rl_task_name">RL Task</label>
+                <select id="rl_task_name">
+                    <option value="easy_scholarship_shortlist">Easy: Scholarship Shortlist</option>
+                    <option value="medium_exam_guidance">Medium: Exam Guidance</option>
+                    <option value="hard_mixed_guidance">Hard: Mixed Guidance</option>
+                </select>
+                <div class="helper-text">Each task hides different profile fields and gives a limited number of turns.</div>
+            </div>
+            <div class="grid" style="margin-bottom: 0;">
+                <button class="rl-action-button button-multiturn" onclick="startRlEpisode()">Start RL Episode</button>
+                <button class="rl-action-button button-baseline" onclick="showRlBaseline()">Show RL Baseline</button>
+            </div>
+        </div>
+
+        <div class="rl-grid">
+            <div class="field">
+                <label for="rl_field_name">Ask Hidden Field</label>
+                <select id="rl_field_name">
+                    <option value="">Start an episode first</option>
+                </select>
+            </div>
+            <button class="rl-action-button button-reveal" onclick="askRlField()">Reveal Field</button>
+        </div>
+
+        <div class="grid">
+            <div class="field">
+                <label for="rl_scholarships">Draft Scholarships</label>
+                <textarea id="rl_scholarships" placeholder="Comma-separated scholarship names"></textarea>
+            </div>
+            <div class="field">
+                <label for="rl_exams">Draft Exams</label>
+                <textarea id="rl_exams" placeholder="Comma-separated exam names"></textarea>
+            </div>
+            <div class="field">
+                <label for="rl_primary_scholarship">Primary Scholarship</label>
+                <input id="rl_primary_scholarship" type="text" placeholder="Optional primary scholarship">
+            </div>
+            <div class="field">
+                <label>RL Workflow</label>
+                <div class="helper-text">
+                    1. Start an episode<br>
+                    2. Ask the most useful hidden fields<br>
+                    3. Draft guidance<br>
+                    4. Finalize before steps end
+                </div>
+            </div>
+        </div>
+
+        <div class="rl-actions">
+            <button class="rl-action-button button-draft" onclick="draftRlGuidance()">Save Draft Guidance</button>
+            <button class="rl-action-button button-finalize" onclick="finalizeRlGuidance()">Finalize RL Guidance</button>
+            <button class="rl-action-button button-outline" onclick="loadRlTasks()">Load RL Task Info</button>
+        </div>
+
+        <div id="rlResults" class="rl-results">
+            <div class="empty" style="color: var(--muted);">Start an RL episode to interact with the hidden-state counseling environment here.</div>
+        </div>
+    </section>
+
     <div class="footer">Built for Indian Students | Meta PyTorch OpenEnv Hackathon 2026</div>
 </div>
 
 <script>
     const API = window.location.origin;
+    let rlLastObservation = null;
 
     function readOptionalNumber(id) {
         const raw = document.getElementById(id).value;
@@ -699,8 +932,137 @@
         return data;
     }
 
+    async function getJson(path) {
+        const response = await fetch(`${API}${path}`);
+        let data = {};
+        try {
+            data = await response.json();
+        } catch (error) {
+            data = {};
+        }
+
+        if (!response.ok) {
+            const detail = Array.isArray(data.detail)
+                ? data.detail.map(item => item.msg || item).join(", ")
+                : data.detail || "Request failed";
+            throw new Error(detail);
+        }
+
+        return data;
+    }
+
     function renderBackButton() {
         return `<button class="back-button" onclick="showForm()">Back to Form</button>`;
+    }
+
+    function toNameList(value) {
+        return value
+            .split(/[\n,]+/)
+            .map(item => item.trim())
+            .filter(Boolean);
+    }
+
+    function formatFieldName(value) {
+        return value
+            .replaceAll("_", " ")
+            .replace(/\b\w/g, letter => letter.toUpperCase());
+    }
+
+    function populateRlFieldOptions(fields) {
+        const select = document.getElementById("rl_field_name");
+        if (!fields || fields.length === 0) {
+            select.innerHTML = `<option value="">No hidden fields left</option>`;
+            return;
+        }
+
+        select.innerHTML = fields
+            .map(field => `<option value="${field}">${formatFieldName(field)}</option>`)
+            .join("");
+    }
+
+    function renderRlObservation(observation, meta = {}) {
+        rlLastObservation = observation;
+        populateRlFieldOptions(observation.missing_fields || []);
+
+        const revealedItems = Object.entries(observation.revealed_profile || {})
+            .filter(([, value]) => value !== null && value !== undefined)
+            .map(([key, value]) => `<div class="rl-list-item"><strong>${formatFieldName(key)}:</strong> ${value}</div>`)
+            .join("");
+
+        const hiddenItems = (observation.critical_missing_fields || [])
+            .map(item => `<span class="chip">${formatFieldName(item)}</span>`)
+            .join("");
+
+        const messageItems = (observation.guidance_messages || [])
+            .map(item => `<div class="rl-list-item">${item}</div>`)
+            .join("");
+
+        const scholarshipDraft = observation.draft_scholarships && observation.draft_scholarships.length
+            ? observation.draft_scholarships.join(", ")
+            : "None yet";
+        const examDraft = observation.draft_exams && observation.draft_exams.length
+            ? observation.draft_exams.join(", ")
+            : "None yet";
+
+        document.getElementById("rlResults").innerHTML = `
+            <div class="rl-header">
+                <h2>${formatFieldName(observation.task_name)}</h2>
+                <p>${observation.goal}</p>
+                <div class="chip-row">
+                    <span class="chip">Difficulty: ${observation.difficulty}</span>
+                    <span class="chip">Mode: ${observation.guidance_mode}</span>
+                    <span class="chip">Remaining Steps: ${observation.remaining_steps}</span>
+                    <span class="chip">Reward: ${meta.reward ?? observation.reward}</span>
+                    ${meta.totalReward !== undefined ? `<span class="chip">Total Reward: ${meta.totalReward}</span>` : ""}
+                    ${observation.done ? `<span class="chip">Episode Complete</span>` : ""}
+                </div>
+            </div>
+            <div class="rl-panels">
+                <div class="rl-panel">
+                    <h3>Last Action</h3>
+                    <div class="rl-list">
+                        <div class="rl-list-item">${observation.last_action_summary}</div>
+                    </div>
+                </div>
+                <div class="rl-panel">
+                    <h3>Critical Hidden Fields</h3>
+                    <div class="chip-row">${hiddenItems || `<span class="chip">None</span>`}</div>
+                </div>
+            </div>
+            <div class="rl-panels">
+                <div class="rl-panel">
+                    <h3>Revealed Profile</h3>
+                    <div class="rl-list">${revealedItems || `<div class="rl-list-item">No profile fields have been revealed yet.</div>`}</div>
+                </div>
+                <div class="rl-panel">
+                    <h3>Current Draft Guidance</h3>
+                    <div class="rl-list">
+                        <div class="rl-list-item"><strong>Scholarships:</strong> ${scholarshipDraft}</div>
+                        <div class="rl-list-item"><strong>Exams:</strong> ${examDraft}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="rl-panel">
+                <h3>Environment Feedback</h3>
+                <div class="rl-list">${messageItems || `<div class="rl-list-item">No feedback yet.</div>`}</div>
+            </div>
+        `;
+    }
+
+    function renderRlScoreboard(title, scores) {
+        const scoreItems = Object.entries(scores)
+            .map(([key, value]) => `<div class="rl-list-item"><strong>${formatFieldName(key)}:</strong> ${value}</div>`)
+            .join("");
+
+        document.getElementById("rlResults").innerHTML = `
+            <div class="rl-header">
+                <h2>${title}</h2>
+                <p>These scores come from the same backend and use the integrated multi-turn RL environment.</p>
+            </div>
+            <div class="rl-panel">
+                <div class="rl-list">${scoreItems}</div>
+            </div>
+        `;
     }
 
     async function findScholarships() {
@@ -831,6 +1193,95 @@
             showResults(html);
         } catch (error) {
             showResults(`${renderBackButton()}<div class="empty">Error: ${error.message}</div>`);
+        }
+    }
+
+    async function startRlEpisode() {
+        const taskName = document.getElementById("rl_task_name").value;
+        try {
+            const observation = await postJson("/rl/reset", { task_name: taskName });
+            document.getElementById("rl_scholarships").value = "";
+            document.getElementById("rl_exams").value = "";
+            document.getElementById("rl_primary_scholarship").value = "";
+            renderRlObservation(observation, { reward: observation.reward, totalReward: observation.reward });
+        } catch (error) {
+            document.getElementById("rlResults").innerHTML = `<div class="empty" style="color: var(--danger);">Error: ${error.message}</div>`;
+        }
+    }
+
+    async function askRlField() {
+        const fieldName = document.getElementById("rl_field_name").value;
+        if (!fieldName) {
+            alert("Start an RL episode and choose a hidden field first.");
+            return;
+        }
+
+        try {
+            const result = await postJson("/rl/step", {
+                action_type: "ask_profile_field",
+                field_name: fieldName
+            });
+            renderRlObservation(result.observation, {
+                reward: result.reward,
+                totalReward: result.info.total_reward
+            });
+        } catch (error) {
+            document.getElementById("rlResults").innerHTML = `<div class="empty" style="color: var(--danger);">Error: ${error.message}</div>`;
+        }
+    }
+
+    async function draftRlGuidance() {
+        try {
+            const result = await postJson("/rl/step", {
+                action_type: "draft_guidance",
+                scholarship_names: toNameList(document.getElementById("rl_scholarships").value),
+                exam_names: toNameList(document.getElementById("rl_exams").value)
+            });
+            renderRlObservation(result.observation, {
+                reward: result.reward,
+                totalReward: result.info.total_reward
+            });
+        } catch (error) {
+            document.getElementById("rlResults").innerHTML = `<div class="empty" style="color: var(--danger);">Error: ${error.message}</div>`;
+        }
+    }
+
+    async function finalizeRlGuidance() {
+        try {
+            const result = await postJson("/rl/step", {
+                action_type: "finalize_guidance",
+                scholarship_names: toNameList(document.getElementById("rl_scholarships").value),
+                exam_names: toNameList(document.getElementById("rl_exams").value),
+                primary_scholarship: document.getElementById("rl_primary_scholarship").value.trim() || null
+            });
+            renderRlObservation(result.observation, {
+                reward: result.reward,
+                totalReward: result.info.total_reward
+            });
+        } catch (error) {
+            document.getElementById("rlResults").innerHTML = `<div class="empty" style="color: var(--danger);">Error: ${error.message}</div>`;
+        }
+    }
+
+    async function loadRlTasks() {
+        try {
+            const data = await getJson("/rl/tasks");
+            const items = data.tasks.reduce((acc, task) => {
+                acc[task.name] = `${task.difficulty} | ${task.guidance_mode} | ${task.max_steps} steps`;
+                return acc;
+            }, {});
+            renderRlScoreboard("RL Task Guide", items);
+        } catch (error) {
+            document.getElementById("rlResults").innerHTML = `<div class="empty" style="color: var(--danger);">Error: ${error.message}</div>`;
+        }
+    }
+
+    async function showRlBaseline() {
+        try {
+            const data = await getJson("/rl/baseline");
+            renderRlScoreboard("RL Baseline Scores", data);
+        } catch (error) {
+            document.getElementById("rlResults").innerHTML = `<div class="empty" style="color: var(--danger);">Error: ${error.message}</div>`;
         }
     }
 </script>
