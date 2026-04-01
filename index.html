@@ -85,6 +85,42 @@
             gap: 14px;
         }
 
+        .mode-switch {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 8px auto 6px;
+            padding: 8px;
+            width: fit-content;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(12px);
+        }
+
+        .mode-pill {
+            border: none;
+            border-radius: 999px;
+            padding: 12px 18px;
+            min-width: 190px;
+            font: inherit;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.82);
+            background: transparent;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+
+        .mode-pill:hover {
+            transform: translateY(-1px);
+        }
+
+        .mode-pill.active {
+            color: white;
+            background: linear-gradient(135deg, rgba(15, 157, 138, 0.95), rgba(20, 108, 201, 0.95));
+            box-shadow: 0 14px 28px rgba(7, 19, 33, 0.24);
+        }
+
         .stat {
             padding: 18px;
             border-radius: var(--radius-lg);
@@ -404,6 +440,15 @@
             margin-bottom: 18px;
         }
 
+        .section-eyebrow {
+            margin-bottom: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 0.74rem;
+            font-weight: 800;
+        }
+
         .rl-shell {
             margin-top: 22px;
         }
@@ -411,7 +456,7 @@
         .rl-toolbar,
         .rl-actions {
             display: grid;
-            grid-template-columns: 1.3fr 1fr;
+            grid-template-columns: 1.2fr 0.9fr;
             gap: 16px;
             align-items: end;
             margin-bottom: 18px;
@@ -446,11 +491,11 @@
         }
 
         .button-multiturn {
-            background: linear-gradient(135deg, #6a43d1, #3d71e2);
+            background: linear-gradient(135deg, #ff7a18, #ffb03a);
         }
 
         .button-baseline {
-            background: linear-gradient(135deg, #1d4d7a, #0f9d8a);
+            background: linear-gradient(135deg, #0f9d8a, #146cc9);
         }
 
         .button-reveal {
@@ -468,6 +513,100 @@
         .button-outline {
             background: #eef4fb;
             color: var(--text);
+        }
+
+        .rl-intro {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .rl-hero-panel {
+            padding: 20px 22px;
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at top right, rgba(255, 176, 58, 0.18), transparent 32%),
+                linear-gradient(145deg, #081a2b, #113152);
+            color: white;
+        }
+
+        .rl-hero-panel h3 {
+            font-size: 1.35rem;
+            margin-bottom: 10px;
+        }
+
+        .rl-hero-panel p {
+            color: rgba(255, 255, 255, 0.78);
+            line-height: 1.7;
+        }
+
+        .rl-steps {
+            display: grid;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .rl-step {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 14px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .rl-step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.16);
+            font-size: 0.82rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .rl-side-panel {
+            padding: 18px;
+            border-radius: 24px;
+            background: #f4f8fc;
+        }
+
+        .rl-side-panel h3 {
+            font-size: 0.98rem;
+            margin-bottom: 8px;
+        }
+
+        .rl-side-panel p {
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .rl-pill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .rl-mini-pill {
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: white;
+            color: var(--text);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .rl-workspace {
+            display: none;
+        }
+
+        .rl-workspace.active {
+            display: block;
         }
 
         .rl-results {
@@ -561,7 +700,8 @@
             .grid,
             .rl-toolbar,
             .rl-actions,
-            .rl-panels {
+            .rl-panels,
+            .rl-intro {
                 grid-template-columns: 1fr;
             }
 
@@ -588,6 +728,10 @@
             Explore scholarships, government exams, and detailed eligibility checks through
             a real-world education-support environment designed for OpenEnv agents.
         </p>
+        <div class="mode-switch">
+            <button id="modeFinder" class="mode-pill active" onclick="switchMode('finder')">Finder Mode</button>
+            <button id="modeRl" class="mode-pill" onclick="switchMode('rl')">RL Lab Mode</button>
+        </div>
         <div class="stats">
             <div class="stat"><strong>20+</strong><span>Scholarships</span></div>
             <div class="stat"><strong>20+</strong><span>Exams</span></div>
@@ -750,12 +894,33 @@
 
     <section id="results" class="results"></section>
 
-    <section id="rlSection" class="card rl-shell">
+    <section id="rlSection" class="card rl-shell" style="display: none;">
         <div class="section-title">Multi-Turn Scholarship Guidance RL Environment</div>
-        <p class="section-copy">
-            This stronger RL version runs inside the same website. Start an episode, reveal hidden student fields,
-            draft scholarship or exam guidance, and finalize before the turn budget runs out.
-        </p>
+        <div class="rl-intro">
+            <div class="rl-hero-panel">
+                <div class="section-eyebrow">Genz-Friendly RL Demo</div>
+                <h3>Run a hidden-state counseling mission</h3>
+                <p>
+                    This lab turns your project into a stronger RL environment. The student profile is partly hidden,
+                    each move costs a turn, and the best score comes from asking smart questions before locking in the final guidance.
+                </p>
+                <div class="rl-steps">
+                    <div class="rl-step"><span class="rl-step-number">1</span><div>Pick a task and start the episode.</div></div>
+                    <div class="rl-step"><span class="rl-step-number">2</span><div>Reveal only the hidden clues that actually matter.</div></div>
+                    <div class="rl-step"><span class="rl-step-number">3</span><div>Draft recommendations, then finalize before the budget ends.</div></div>
+                </div>
+            </div>
+            <div class="rl-side-panel">
+                <h3>What changes here?</h3>
+                <p>You do not fill the upper student form in RL mode. This section runs on its own hidden profile and reward logic.</p>
+                <div class="rl-pill-list">
+                    <span class="rl-mini-pill">Hidden State</span>
+                    <span class="rl-mini-pill">Turn Budget</span>
+                    <span class="rl-mini-pill">Partial Reward</span>
+                    <span class="rl-mini-pill">Final Score</span>
+                </div>
+            </div>
+        </div>
 
         <div class="rl-toolbar">
             <div class="field">
@@ -773,48 +938,45 @@
             </div>
         </div>
 
-        <div class="rl-grid">
-            <div class="field">
-                <label for="rl_field_name">Ask Hidden Field</label>
-                <select id="rl_field_name">
-                    <option value="">Start an episode first</option>
-                </select>
+        <div id="rlWorkspace" class="rl-workspace">
+            <div class="rl-grid">
+                <div class="field">
+                    <label for="rl_field_name">Reveal Next Hidden Field</label>
+                    <select id="rl_field_name">
+                        <option value="">Start an episode first</option>
+                    </select>
+                </div>
+                <button class="rl-action-button button-reveal" onclick="askRlField()">Reveal Field</button>
             </div>
-            <button class="rl-action-button button-reveal" onclick="askRlField()">Reveal Field</button>
-        </div>
 
-        <div class="grid">
-            <div class="field">
-                <label for="rl_scholarships">Draft Scholarships</label>
-                <textarea id="rl_scholarships" placeholder="Comma-separated scholarship names"></textarea>
-            </div>
-            <div class="field">
-                <label for="rl_exams">Draft Exams</label>
-                <textarea id="rl_exams" placeholder="Comma-separated exam names"></textarea>
-            </div>
-            <div class="field">
-                <label for="rl_primary_scholarship">Primary Scholarship</label>
-                <input id="rl_primary_scholarship" type="text" placeholder="Optional primary scholarship">
-            </div>
-            <div class="field">
-                <label>RL Workflow</label>
-                <div class="helper-text">
-                    1. Start an episode<br>
-                    2. Ask the most useful hidden fields<br>
-                    3. Draft guidance<br>
-                    4. Finalize before steps end
+            <div class="grid">
+                <div class="field">
+                    <label for="rl_scholarships">Scholarship Draft</label>
+                    <textarea id="rl_scholarships" placeholder="Type only the scholarships you want to recommend"></textarea>
+                </div>
+                <div class="field">
+                    <label for="rl_exams">Exam Draft</label>
+                    <textarea id="rl_exams" placeholder="Type only the exams you want to recommend"></textarea>
+                </div>
+                <div class="field">
+                    <label for="rl_primary_scholarship">Top Scholarship Pick</label>
+                    <input id="rl_primary_scholarship" type="text" placeholder="Best single scholarship choice">
+                </div>
+                <div class="field">
+                    <label>Quick Rule</label>
+                    <div class="helper-text">Ask only the missing fields that improve your final answer. Repeating or wasting turns lowers the score.</div>
                 </div>
             </div>
-        </div>
 
-        <div class="rl-actions">
-            <button class="rl-action-button button-draft" onclick="draftRlGuidance()">Save Draft Guidance</button>
-            <button class="rl-action-button button-finalize" onclick="finalizeRlGuidance()">Finalize RL Guidance</button>
-            <button class="rl-action-button button-outline" onclick="loadRlTasks()">Load RL Task Info</button>
+            <div class="rl-actions">
+                <button class="rl-action-button button-draft" onclick="draftRlGuidance()">Save Draft Guidance</button>
+                <button class="rl-action-button button-finalize" onclick="finalizeRlGuidance()">Finalize RL Guidance</button>
+                <button class="rl-action-button button-outline" onclick="loadRlTasks()">Load RL Task Info</button>
+            </div>
         </div>
 
         <div id="rlResults" class="rl-results">
-            <div class="empty" style="color: var(--muted);">Start an RL episode to interact with the hidden-state counseling environment here.</div>
+            <div class="empty" style="color: var(--muted);">Switch to RL Lab mode and start an episode. The reveal-and-recommend controls will appear only after the mission begins.</div>
         </div>
     </section>
 
@@ -824,6 +986,7 @@
 <script>
     const API = window.location.origin;
     let rlLastObservation = null;
+    let currentMode = "finder";
 
     function readOptionalNumber(id) {
         const raw = document.getElementById(id).value;
@@ -861,8 +1024,31 @@
         };
     }
 
+    function switchMode(mode) {
+        currentMode = mode;
+        const finderSection = document.getElementById("formSection");
+        const rlSection = document.getElementById("rlSection");
+        const modeFinder = document.getElementById("modeFinder");
+        const modeRl = document.getElementById("modeRl");
+        const results = document.getElementById("results");
+        const loading = document.getElementById("loading");
+
+        const finderActive = mode === "finder";
+        finderSection.style.display = finderActive ? "block" : "none";
+        rlSection.style.display = finderActive ? "none" : "block";
+        results.style.display = "none";
+        loading.style.display = "none";
+        modeFinder.classList.toggle("active", finderActive);
+        modeRl.classList.toggle("active", !finderActive);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
     function showLoading() {
-        document.getElementById("formSection").style.display = "none";
+        if (currentMode === "finder") {
+            document.getElementById("formSection").style.display = "none";
+        } else {
+            document.getElementById("rlSection").style.display = "none";
+        }
         document.getElementById("loading").style.display = "block";
         document.getElementById("results").style.display = "none";
     }
@@ -875,9 +1061,9 @@
     }
 
     function showForm() {
-        document.getElementById("formSection").style.display = "block";
         document.getElementById("loading").style.display = "none";
         document.getElementById("results").style.display = "none";
+        switchMode("finder");
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -983,6 +1169,7 @@
     function renderRlObservation(observation, meta = {}) {
         rlLastObservation = observation;
         populateRlFieldOptions(observation.missing_fields || []);
+        document.getElementById("rlWorkspace").classList.add("active");
 
         const revealedItems = Object.entries(observation.revealed_profile || {})
             .filter(([, value]) => value !== null && value !== undefined)
@@ -1199,6 +1386,7 @@
     async function startRlEpisode() {
         const taskName = document.getElementById("rl_task_name").value;
         try {
+            switchMode("rl");
             const observation = await postJson("/rl/reset", { task_name: taskName });
             document.getElementById("rl_scholarships").value = "";
             document.getElementById("rl_exams").value = "";
@@ -1265,6 +1453,7 @@
 
     async function loadRlTasks() {
         try {
+            switchMode("rl");
             const data = await getJson("/rl/tasks");
             const items = data.tasks.reduce((acc, task) => {
                 acc[task.name] = `${task.difficulty} | ${task.guidance_mode} | ${task.max_steps} steps`;
@@ -1278,12 +1467,15 @@
 
     async function showRlBaseline() {
         try {
+            switchMode("rl");
             const data = await getJson("/rl/baseline");
             renderRlScoreboard("RL Baseline Scores", data);
         } catch (error) {
             document.getElementById("rlResults").innerHTML = `<div class="empty" style="color: var(--danger);">Error: ${error.message}</div>`;
         }
     }
+
+    switchMode("finder");
 </script>
 </body>
 </html>
