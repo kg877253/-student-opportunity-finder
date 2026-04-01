@@ -1,2 +1,2 @@
 #!/bin/bash
-pip install fastapi uvicorn pydantic
+pip install -r requirements.txt

@@ -1,41 +1,74 @@
 name: student-opportunity-finder
-version: 0.1.0
+version: 0.3.0
 description: >
-  An RL environment that helps Indian students find scholarships,
-  government exams and check eligibility. Built for the Meta PyTorch
-  OpenEnv Hackathon 2026.
-
+  A real-world OpenEnv environment that helps Indian students discover scholarships,
+  discover government or entrance exams, and evaluate detailed scholarship eligibility.
 author: Kartik and Team
 license: MIT
+domain: education-support
+tags:
+  - openenv
+  - education
+  - scholarships
+  - public-sector
 
-tasks:
-  - name: find_scholarships
-    description: Find matching scholarships based on student profile
-    difficulty: easy
-    reward_range: [0.0, 1.0]
-
-  - name: find_exams
-    description: Find government exams student can apply for
-    difficulty: medium
-    reward_range: [0.0, 1.0]
-
-  - name: check_eligibility
-    description: Check detailed eligibility for a specific scholarship
-    difficulty: hard
-    reward_range: [0.0, 1.0]
-
-observation_space:
-  type: structured
-  format: json
+environment:
+  reset_endpoint: /reset
+  step_endpoint: /step
+  state_endpoint: /state
+  health_endpoint: /health
+  tasks_endpoint: /tasks
+  grader_endpoint: /grader
+  baseline_endpoint: /baseline
 
 action_space:
   type: structured
   format: json
+  description: >
+    A discriminated action object with task values find_scholarships, find_exams,
+    or check_eligibility. Scholarship and exam search actions use a student profile.
+    Eligibility uses a nested student profile plus an exact scholarship name.
 
-endpoints:
-  - /reset
-  - /step
-  - /state
-  - /tasks
-  - /grader
-  - /baseline
+observation_space:
+  type: structured
+  format: json
+  description: >
+    step() returns a StepResult envelope with observation, reward, done, and info.
+    Observations contain ranked scholarship results, ranked exam results, or a
+    detailed eligibility explanation with passed, failed, and manual-review criteria.
+
+reward:
+  range: [0.0, 1.0]
+  description: >
+    Rewards combine relevance quality and coverage. Search tasks reward high-quality
+    matches plus useful coverage. Eligibility rewards passed criteria and penalizes
+    missing information that prevents full verification.
+
+tasks:
+  - name: find_scholarships
+    difficulty: easy
+    reward_range: [0.0, 1.0]
+    grader: graders.grade_task1
+    description: >
+      Produce a high-quality ranked set of scholarships for a student profile while
+      filtering out ineligible options such as wrong course type or wrong level.
+
+  - name: find_exams
+    difficulty: medium
+    reward_range: [0.0, 1.0]
+    grader: graders.grade_task2
+    description: >
+      Produce a strong ranked set of government or entrance exams for a student profile,
+      respecting age, qualification, course constraints, and category-based relaxation.
+
+  - name: check_eligibility
+    difficulty: hard
+    reward_range: [0.0, 1.0]
+    grader: graders.grade_task3
+    description: >
+      Evaluate a student against a named scholarship and return explicit passed criteria,
+      failed criteria, and missing information that requires manual review.
+
+submission:
+  inference_script: inference.py
+  dockerfile: Dockerfile
