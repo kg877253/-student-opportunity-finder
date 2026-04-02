@@ -143,7 +143,7 @@ docker run -p 7860:7860 student-opportunity-finder
 
 ## Data
 
-15 scholarships (Buddy4Study data)  
+25 scholarships (Google, Adobe, ONGC, LIC, HCL + government schemes)  
 15 government exams (SSC, UPSC, JEE, NEET, etc)
 
 ## Project Structure

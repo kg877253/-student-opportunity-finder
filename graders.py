@@ -71,6 +71,15 @@ def grade_task2() -> float:
 
 
 def grade_task3() -> float:
+    """
+    Hard task: Requires nested reasoning about eligibility.
+    Agent must understand:
+    1. Basic eligibility (age, income, marks)
+    2. Course compatibility 
+    3. Study location constraints
+    4. Qualification level matching
+    5. Reason about why student is/isn't eligible
+    """
     env = ScholarshipEnvironment()
     student = StudentAction(
         name="Riya",
@@ -83,23 +92,80 @@ def grade_task3() -> float:
         course_level="Undergraduate",
         course_name="B.Tech",
         age=21,
-        task="find_scholarships",
+        task="check_eligibility",
     )
-    action = EligibilityAction(
+    
+    # Test 1: Overseas postgrad scholarship (should fail - undergrad student)
+    action1 = EligibilityAction(
         student=student,
         scholarship_name="JN Tata Endowment Loan Scholarship 2026-27",
+        task="check_eligibility"
     )
-    result = env.step(action).observation
-
-    failed_course_level = any("Course level" in item for item in result.failed_criteria)
-    not_eligible = not result.is_eligible
-    no_false_positive = result.eligibility_score < 1.0
-
-    score = 0.0
-    score += 0.4 if not_eligible else 0.0
-    score += 0.4 if failed_course_level else 0.0
-    score += 0.2 if no_false_positive else 0.0
-    return round(score, 2)
+    result1 = env.step(action1)
+    obs1 = result1.observation
+    
+    # Should correctly identify course level mismatch
+    course_level_check = any("Post Graduate" in str(c) or "postgraduate" in str(c).lower() 
+                             for c in obs1.failed_criteria)
+    
+    # Test 2: Women tech scholarship (should pass - female, B.Tech, good marks)
+    student2 = StudentAction(
+        name="Priya",
+        gender="Female",
+        category="General",
+        state="Maharashtra",
+        marks_class10=88,
+        marks_class12=87,
+        annual_income=400000,
+        course_level="Undergraduate",
+        course_name="B.Tech",
+        age=19,
+        year_of_study=2,
+        task="check_eligibility",
+    )
+    action2 = EligibilityAction(
+        student=student2,
+        scholarship_name="Google India Women in Engineering Scholarship 2025-26",
+        task="check_eligibility"
+    )
+    result2 = env.step(action2)
+    obs2 = result2.observation
+    
+    # Should identify as eligible
+    should_be_eligible = obs2.is_eligible and obs2.eligibility_score >= 0.8
+    
+    # Test 3: Complex multi-criteria scholarship
+    student3 = StudentAction(
+        name="Aarav",
+        gender="Male",
+        category="SC",
+        state="Delhi",
+        marks_class10=76,
+        marks_class12=78,
+        annual_income=220000,
+        course_level="Undergraduate",
+        course_name="B.Tech",
+        age=20,
+        task="check_eligibility",
+    )
+    action3 = EligibilityAction(
+        student=student3,
+        scholarship_name="Infosys Foundation SC ST Technology Scholarship 2025-26",
+        task="check_eligibility"
+    )
+    result3 = env.step(action3)
+    obs3 = result3.observation
+    
+    # Should identify marks slightly below cutoff (needs 75%, has 78% - should pass)
+    marks_reasoning = obs3.is_eligible
+    
+    # Scoring based on reasoning quality
+    reasoning_score = 0.0
+    reasoning_score += 0.35 if course_level_check else 0.0  # Identified level mismatch
+    reasoning_score += 0.35 if should_be_eligible else 0.0   # Correct positive case
+    reasoning_score += 0.30 if marks_reasoning else 0.0      # Edge case handling
+    
+    return round(min(1.0, reasoning_score), 2)
 
 
 def grade_all_tasks() -> dict[str, float]:

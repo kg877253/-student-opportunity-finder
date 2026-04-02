@@ -329,5 +329,184 @@ scholarships = [
             "Must have scored 55% or above in Class 12",
             "Priority given to students from rural areas"
         ]
+    },
+
+    {
+        "name": "Google India Women in Engineering Scholarship 2025-26",
+        "amount": 100000,
+        "deadline": "15-06-2026",
+        "gender": "Female",
+        "nationality": "Indian",
+        "state": "All India",
+        "category": "All",
+        "min_marks_class12": 80,
+        "max_income": 1000000,
+        "course_level": ["Undergraduate"],
+        "allowed_courses": ["B.Tech", "B.E.", "Computer Science"],
+        "year": [2, 3],
+        "type": "Merit Scholarship",
+        "special_conditions": [
+            "Must be female student in computer science or engineering",
+            "Must be in second or third year",
+            "Minimum 80% in Class 12",
+            "Must show leadership potential"
+        ]
+    },
+
+    {
+        "name": "Sitaram Jindal Foundation Merit Scholarship 2025-26",
+        "amount": 55000,
+        "deadline": "31-07-2026",
+        "gender": "All",
+        "nationality": "Indian",
+        "state": "All India",
+        "category": "All",
+        "min_marks_class12": 82,
+        "max_income": 400000,
+        "course_level": ["Undergraduate"],
+        "type": "Merit Scholarship",
+        "special_conditions": [
+            "Must have scored 82% or above in Class 12",
+            "Annual family income below 4 lakh",
+            "Must be enrolled in recognized institution"
+        ]
+    },
+
+    {
+        "name": "Adobe India Women Technology Scholarship 2025-26",
+        "amount": 90000,
+        "deadline": "30-06-2026",
+        "gender": "Female",
+        "nationality": "Indian",
+        "state": "All India",
+        "category": "All",
+        "min_marks_class12": 78,
+        "max_income": 800000,
+        "course_level": ["Undergraduate"],
+        "allowed_courses": ["B.Tech", "B.E.", "BCA", "B.Sc IT"],
+        "type": "Merit Scholarship",
+        "special_conditions": [
+            "Must be female student in technology stream",
+            "Minimum 78% in Class 12",
+            "Must show interest in design or development"
+        ]
+    },
+
+    {
+        "name": "NTPC Vidyarthi Scholarship for SC ST Students 2025-26",
+        "amount": 30000,
+        "deadline": "30-04-2026",
+        "gender": "All",
+        "nationality": "Indian",
+        "state": "All India",
+        "category": ["SC", "ST"],
+        "min_marks_class12": 65,
+        "max_income": 300000,
+        "course_level": ["Undergraduate"],
+        "type": "Need cum Merit Scholarship",
+        "special_conditions": [
+            "Must belong to SC or ST category",
+            "Annual family income below 3 lakh",
+            "Minimum 65% in Class 12"
+        ]
+    },
+
+    {
+        "name": "LIC Golden Jubilee Foundation Scholarship 2025-26",
+        "amount": 45000,
+        "deadline": "31-05-2026",
+        "gender": "All",
+        "nationality": "Indian",
+        "state": "All India",
+        "category": "All",
+        "min_marks_class10": 70,
+        "min_marks_class12": 70,
+        "max_income": 350000,
+        "course_level": ["Undergraduate"],
+        "type": "Merit cum Need Scholarship",
+        "special_conditions": [
+            "Minimum 70% in both Class 10 and Class 12",
+            "Annual family income below 3.5 lakh",
+            "Studying in recognized college"
+        ]
+    },
+
+    {
+        "name": "ONGC Foundation Bright Minds Scholarship 2025-26",
+        "amount": 65000,
+        "deadline": "30-06-2026",
+        "gender": "All",
+        "nationality": "Indian",
+        "state": "All India",
+        "category": "All",
+        "min_marks_class12": 88,
+        "max_income": 500000,
+        "course_level": ["Undergraduate"],
+        "allowed_courses": ["B.Tech", "B.E.", "B.Sc", "MBBS"],
+        "type": "Merit Scholarship",
+        "special_conditions": [
+            "Must have scored 88% or above in Class 12",
+            "Annual family income below 5 lakh",
+            "Studying in STEM or medical fields"
+        ]
+    },
+
+    {
+        "name": "Dr APJ Abdul Kalam Innovation Scholarship 2025-26",
+        "amount": 75000,
+        "deadline": "15-07-2026",
+        "gender": "All",
+        "nationality": "Indian",
+        "state": "All India",
+        "category": "All",
+        "min_marks_class12": 80,
+        "max_income": 400000,
+        "course_level": ["Undergraduate", "Postgraduate"],
+        "type": "Merit Scholarship",
+        "special_conditions": [
+            "Must show interest in innovation and research",
+            "Minimum 80% in Class 12",
+            "Must submit innovation project proposal"
+        ]
+    },
+
+    {
+        "name": "Aditya Birla Scholarship for Engineering Students 2025-26",
+        "amount": 80000,
+        "deadline": "30-04-2026",
+        "gender": "All",
+        "nationality": "Indian",
+        "state": "All India",
+        "category": "All",
+        "min_marks_class12": 85,
+        "max_income": 600000,
+        "course_level": ["Undergraduate"],
+        "allowed_courses": ["B.Tech", "B.E."],
+        "type": "Merit Scholarship",
+        "special_conditions": [
+            "Must be engineering student in top tier college",
+            "Minimum 85% in Class 12",
+            "Annual family income below 6 lakh"
+        ]
+    },
+
+    {
+        "name": "HCL Foundation Disability Support Scholarship 2025-26",
+        "amount": 40000,
+        "deadline": "31-05-2026",
+        "gender": "All",
+        "nationality": "Indian",
+        "state": "All India",
+        "category": "All",
+        "min_marks_class12": 50,
+        "max_income": 250000,
+        "course_level": ["Undergraduate", "Postgraduate"],
+        "type": "Need Based Scholarship",
+        "special_conditions": [
+            "Must have at least 40% physical disability",
+            "Must have disability certificate from govt hospital",
+            "Annual family income below 2.5 lakh",
+            "Minimum 50% in Class 12"
+        ]
     }
 ]
