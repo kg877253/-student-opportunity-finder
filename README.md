@@ -10,7 +10,7 @@ pinned: false
 # Student Opportunity Finder - OpenEnv RL Environment
 
 India's first AI-powered scholarship and government exam finder built as an RL environment.  
-Built for the Meta PyTorch OpenEnv Hackathon 2026 by Team DU.
+Built for the Meta PyTorch OpenEnv Hackathon 2026 by Team DLC.
 
 ## Live Links
 
@@ -40,7 +40,7 @@ Three tasks:
 3. Task 3: Eligibility Check (Hard)
 
 ### Task 1 - Scholarship Finder
-Give student profile, get ranked scholarships with match scores (0.0-1.0).  
+Give student profile, get ranked scholarships with match scores.  
 Reward based on quality of matches.
 
 ### Task 2 - Government Exam Finder
@@ -159,7 +159,7 @@ baseline.py - Baseline script
 index.html - UI
 ```
 
-## Team
+## Team DLC
 
 **Kartik Gupta** - Lead Dev & RL Environment  
 **Aryan Sharma** - UI/UX & Frontend  
@@ -172,4 +172,4 @@ University of Delhi, India
 
 MIT License
 
-Meta PyTorch OpenEnv Hackathon 2026
+
