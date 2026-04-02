@@ -1883,13 +1883,46 @@
             .join("");
 
         const scholarshipDraft = observation.draft_scholarships && observation.draft_scholarships.length
-            ? observation.draft_scholarships.join(", ")
-            : "None yet";
+            ? observation.draft_scholarships.map(s => `<div class="rl-list-item" style="background: #d1fae5; color: #065f46; font-weight: 600;">✓ ${s}</div>`).join("")
+            : '<div class="rl-list-item" style="background: #fee2e2; color: #991b1b;">⚠️ No scholarships recommended yet</div>';
+        
         const examDraft = observation.draft_exams && observation.draft_exams.length
-            ? observation.draft_exams.join(", ")
-            : "None yet";
+            ? observation.draft_exams.map(e => `<div class="rl-list-item" style="background: #d1fae5; color: #065f46; font-weight: 600;">✓ ${e}</div>`).join("")
+            : '<div class="rl-list-item" style="background: #fee2e2; color: #991b1b;">⚠️ No exams recommended yet</div>';
+
+        // Show FINAL RESULTS prominently if episode is done
+        let finalResultsHTML = '';
+        if (observation.done) {
+            const finalScore = meta.totalReward !== undefined ? meta.totalReward : observation.reward;
+            const scoreColor = finalScore >= 0.5 ? '#10b981' : finalScore >= 0 ? '#f59e0b' : '#ef4444';
+            const scoreEmoji = finalScore >= 0.5 ? '🎉' : finalScore >= 0 ? '⚠️' : '❌';
+            
+            finalResultsHTML = `
+                <div class="results-header" style="margin-bottom: 20px; background: linear-gradient(135deg, ${scoreColor}22, ${scoreColor}11);">
+                    <h2 style="color: white; font-size: 2rem;">${scoreEmoji} Episode Complete!</h2>
+                    <p style="color: rgba(255,255,255,0.9); font-size: 1.2rem; margin: 12px 0;">
+                        <strong>FINAL SCORE: ${finalScore.toFixed(2)}</strong>
+                    </p>
+                    <div style="display: grid; gap: 12px; margin-top: 16px;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 12px;">
+                            <strong style="color: white; display: block; margin-bottom: 8px;">🎓 Agent's Scholarship Recommendations:</strong>
+                            ${observation.draft_scholarships && observation.draft_scholarships.length > 0 
+                                ? observation.draft_scholarships.map(s => `<div style="color: #a7f3d0; padding: 4px 0;">• ${s}</div>`).join("")
+                                : '<div style="color: #fecaca;">• None submitted</div>'}
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 12px;">
+                            <strong style="color: white; display: block; margin-bottom: 8px;">📋 Agent's Exam Recommendations:</strong>
+                            ${observation.draft_exams && observation.draft_exams.length > 0 
+                                ? observation.draft_exams.map(e => `<div style="color: #a7f3d0; padding: 4px 0;">• ${e}</div>`).join("")
+                                : '<div style="color: #fecaca;">• None submitted</div>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
 
         document.getElementById("rlResults").innerHTML = `
+            ${finalResultsHTML}
             <div class="rl-header">
                 <h2>${formatFieldName(observation.task_name)}</h2>
                 <p>${observation.goal}</p>
@@ -1897,20 +1930,25 @@
                     <span class="chip">Difficulty: ${observation.difficulty}</span>
                     <span class="chip">Mode: ${observation.guidance_mode}</span>
                     <span class="chip">Remaining Steps: ${observation.remaining_steps}</span>
-                    <span class="chip">Reward: ${meta.reward ?? observation.reward}</span>
-                    ${meta.totalReward !== undefined ? `<span class="chip">Total Reward: ${meta.totalReward}</span>` : ""}
-                    ${observation.done ? `<span class="chip">Episode Complete</span>` : ""}
+                    <span class="chip">This Turn Reward: ${meta.reward ?? observation.reward}</span>
+                    ${meta.totalReward !== undefined ? `<span class="chip" style="background: rgba(249, 115, 22, 0.3); border-color: #f97316; color: #fed7aa; font-size: 1rem; font-weight: 800;">TOTAL SCORE: ${meta.totalReward}</span>` : ""}
+                    ${observation.done ? `<span class="chip" style="background: rgba(16, 185, 129, 0.3); border-color: #10b981; color: #a7f3d0;">✓ Complete</span>` : ""}
                 </div>
             </div>
             <div class="rl-panels">
+                <div class="rl-panel">
+                    <h3>📊 Agent's Current Recommendations</h3>
+                    <div style="margin-bottom: 12px;"><strong>Scholarships:</strong></div>
+                    ${scholarshipDraft}
+                    <div style="margin: 16px 0 8px;"><strong>Exams:</strong></div>
+                    ${examDraft}
+                </div>
                 <div class="rl-panel">
                     <h3>Last Action</h3>
                     <div class="rl-list">
                         <div class="rl-list-item">${observation.last_action_summary}</div>
                     </div>
-                </div>
-                <div class="rl-panel">
-                    <h3>Critical Hidden Fields</h3>
+                    <h3 style="margin-top: 16px;">Critical Hidden Fields</h3>
                     <div class="chip-row">${hiddenItems || `<span class="chip">None</span>`}</div>
                 </div>
             </div>
@@ -1920,16 +1958,9 @@
                     <div class="rl-list">${revealedItems || `<div class="rl-list-item">No profile fields have been revealed yet.</div>`}</div>
                 </div>
                 <div class="rl-panel">
-                    <h3>Current Draft Guidance</h3>
-                    <div class="rl-list">
-                        <div class="rl-list-item"><strong>Scholarships:</strong> ${scholarshipDraft}</div>
-                        <div class="rl-list-item"><strong>Exams:</strong> ${examDraft}</div>
-                    </div>
+                    <h3>Environment Feedback</h3>
+                    <div class="rl-list">${messageItems || `<div class="rl-list-item">No feedback yet.</div>`}</div>
                 </div>
-            </div>
-            <div class="rl-panel">
-                <h3>Environment Feedback</h3>
-                <div class="rl-list">${messageItems || `<div class="rl-list-item">No feedback yet.</div>`}</div>
             </div>
         `;
     }
