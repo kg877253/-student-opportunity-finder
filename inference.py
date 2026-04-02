@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime
 from statistics import mean
 
 import requests
@@ -10,6 +11,20 @@ ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
 API_BASE_URL = os.getenv("API_BASE_URL")
 MODEL_NAME = os.getenv("MODEL_NAME")
 API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
+
+
+def log_start(task_name: str):
+    timestamp = datetime.utcnow().isoformat()
+    print(f"[START] {json.dumps({'task': task_name, 'timestamp': timestamp})}")
+
+
+def log_step(action: dict, observation: dict, reward: float, done: bool):
+    print(f"[STEP] {json.dumps({'action': action, 'reward': reward, 'done': done})}")
+
+
+def log_end(task_name: str, score: float):
+    timestamp = datetime.utcnow().isoformat()
+    print(f"[END] {json.dumps({'task': task_name, 'score': score, 'timestamp': timestamp})}")
 
 
 def require_env(var_name: str, value: str | None):
@@ -89,18 +104,34 @@ def main():
     scores = {}
 
     for prompt in prompts:
-        schema_context = json.dumps(task_map[prompt["task_name"]], indent=2)
+        task_name = prompt["task_name"]
+        log_start(task_name)
+        
+        schema_context = json.dumps(task_map[task_name], indent=2)
         action = call_model(
             client=client,
             system_prompt=system_prompt,
             user_prompt=f"{prompt['user_prompt']}\n\nTask metadata:\n{schema_context}",
         )
+        
         result = run_step(action)
-        scores[prompt["grader_key"]] = result["reward"]
-        print(f"{prompt['grader_key']}: {result['reward']}")
+        observation = result.get("observation", {})
+        reward = result["reward"]
+        done = result.get("done", True)
+        
+        log_step(action, observation, reward, done)
+        scores[prompt["grader_key"]] = reward
+        log_end(task_name, reward)
 
     scores["average"] = round(mean(scores.values()), 2)
-    print(f"average: {scores['average']}")
+    print(f"\n{'='*50}")
+    print(f"FINAL RESULTS")
+    print(f"{'='*50}")
+    print(f"Task 1 (Scholarship Finder): {scores['task1']}")
+    print(f"Task 2 (Exam Finder): {scores['task2']}")
+    print(f"Task 3 (Eligibility Check): {scores['task3']}")
+    print(f"Average Score: {scores['average']}")
+    print(f"{'='*50}")
 
 
 if __name__ == "__main__":
