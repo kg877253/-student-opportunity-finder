@@ -1455,88 +1455,88 @@
     <section id="results" class="results"></section>
 
     <section id="rlSection" class="card rl-shell" style="display: none;">
-        <div class="section-title">Multi-Turn Scholarship Guidance RL Environment</div>
+        <div class="section-title">🎮 RL Lab — Train an AI Counselor</div>
         <div class="rl-intro">
             <div class="rl-hero-panel">
-                <div class="section-eyebrow">Genz-Friendly RL Demo</div>
-                <h3>Run a hidden-state counseling mission</h3>
+                <div class="section-eyebrow">How it works</div>
+                <h3>Help a student find the right opportunities</h3>
                 <p>
-                    This lab turns your project into a stronger RL environment. The student profile is partly hidden,
-                    each move costs a turn, and the best score comes from asking smart questions before locking in the final guidance.
+                    Imagine you're a career counselor. A student walks in but you only know their name. 
+                    Ask the right questions, then recommend scholarships or exams that fit them best!
                 </p>
                 <div class="rl-steps">
-                    <div class="rl-step"><span class="rl-step-number">1</span><div>Pick a task and start the episode.</div></div>
-                    <div class="rl-step"><span class="rl-step-number">2</span><div>Reveal only the hidden clues that actually matter.</div></div>
-                    <div class="rl-step"><span class="rl-step-number">3</span><div>Draft recommendations, then finalize before the budget ends.</div></div>
+                    <div class="rl-step"><span class="rl-step-number">1</span><div>Select difficulty and click "Start"</div></div>
+                    <div class="rl-step"><span class="rl-step-number">2</span><div>Ask questions to learn about the student (income, marks, age...)</div></div>
+                    <div class="rl-step"><span class="rl-step-number">3</span><div>Recommend scholarships/exams based on what you learned</div></div>
                 </div>
             </div>
             <div class="rl-side-panel">
-                <h3>What changes here?</h3>
-                <p>You do not fill the upper student form in RL mode. This section runs on its own hidden profile and reward logic.</p>
+                <h3>💡 Tips</h3>
+                <p>You have limited turns! Ask only the most important questions before making your final recommendation.</p>
                 <div class="rl-pill-list">
-                    <span class="rl-mini-pill">Hidden State</span>
-                    <span class="rl-mini-pill">Turn Budget</span>
-                    <span class="rl-mini-pill">Partial Reward</span>
-                    <span class="rl-mini-pill">Final Score</span>
+                    <span class="rl-mini-pill">🔒 Hidden Info</span>
+                    <span class="rl-mini-pill">⏱️ Limited Turns</span>
+                    <span class="rl-mini-pill">⭐ Earn Points</span>
+                    <span class="rl-mini-pill">🏆 Final Score</span>
                 </div>
             </div>
         </div>
 
         <div class="rl-toolbar">
             <div class="field">
-                <label for="rl_task_name">RL Task</label>
+                <label for="rl_task_name">Choose Difficulty</label>
                 <select id="rl_task_name">
-                    <option value="easy_scholarship_shortlist">Easy: Scholarship Shortlist</option>
-                    <option value="medium_exam_guidance">Medium: Exam Guidance</option>
-                    <option value="hard_mixed_guidance">Hard: Mixed Guidance</option>
+                    <option value="easy_scholarship_shortlist">🟢 Easy — Find Scholarships</option>
+                    <option value="medium_exam_guidance">🟡 Medium — Find Exams</option>
+                    <option value="hard_mixed_guidance">🔴 Hard — Find Both</option>
                 </select>
-                <div class="helper-text">Each task hides different profile fields and gives a limited number of turns.</div>
+                <div class="helper-text">Harder levels hide more info and give fewer turns.</div>
             </div>
             <div class="grid" style="margin-bottom: 0;">
-                <button class="rl-action-button button-multiturn" onclick="startRlEpisode()">Start RL Episode</button>
-                <button class="rl-action-button button-baseline" onclick="showRlBaseline()">Show RL Baseline</button>
+                <button class="rl-action-button button-multiturn" onclick="startRlEpisode()">▶️ Start Game</button>
+                <button class="rl-action-button button-baseline" onclick="showRlBaseline()">📊 View Scores</button>
             </div>
         </div>
 
         <div id="rlWorkspace" class="rl-workspace">
             <div class="rl-grid">
                 <div class="field">
-                    <label for="rl_field_name">Reveal Next Hidden Field</label>
+                    <label for="rl_field_name">Ask the Student About...</label>
                     <select id="rl_field_name">
-                        <option value="">Start an episode first</option>
+                        <option value="">Click "Start Game" first!</option>
                     </select>
                 </div>
-                <button class="rl-action-button button-reveal" onclick="askRlField()">Reveal Field</button>
+                <button class="rl-action-button button-reveal" onclick="askRlField()">🔍 Ask This</button>
             </div>
 
             <div class="grid">
                 <div class="field">
-                    <label for="rl_scholarships">Scholarship Draft</label>
-                    <textarea id="rl_scholarships" placeholder="Type only the scholarships you want to recommend"></textarea>
+                    <label for="rl_scholarships">Your Scholarship Picks</label>
+                    <textarea id="rl_scholarships" placeholder="Type scholarship names here (one per line)"></textarea>
                 </div>
                 <div class="field">
-                    <label for="rl_exams">Exam Draft</label>
-                    <textarea id="rl_exams" placeholder="Type only the exams you want to recommend"></textarea>
+                    <label for="rl_exams">Your Exam Picks</label>
+                    <textarea id="rl_exams" placeholder="Type exam names here (one per line)"></textarea>
                 </div>
                 <div class="field">
-                    <label for="rl_primary_scholarship">Top Scholarship Pick</label>
-                    <input id="rl_primary_scholarship" type="text" placeholder="Best single scholarship choice">
+                    <label for="rl_primary_scholarship">Best Scholarship (Your #1 Pick)</label>
+                    <input id="rl_primary_scholarship" type="text" placeholder="Your top recommendation">
                 </div>
                 <div class="field">
-                    <label>Quick Rule</label>
-                    <div class="helper-text">Ask only the missing fields that improve your final answer. Repeating or wasting turns lowers the score.</div>
+                    <label>💡 Remember</label>
+                    <div class="helper-text">Don't waste turns asking unnecessary questions. Focus on what matters!</div>
                 </div>
             </div>
 
             <div class="rl-actions">
-                <button class="rl-action-button button-draft" onclick="draftRlGuidance()">Save Draft Guidance</button>
-                <button class="rl-action-button button-finalize" onclick="finalizeRlGuidance()">Finalize RL Guidance</button>
-                <button class="rl-action-button button-outline" onclick="loadRlTasks()">Load RL Task Info</button>
+                <button class="rl-action-button button-draft" onclick="draftRlGuidance()">📝 Save Draft</button>
+                <button class="rl-action-button button-finalize" onclick="finalizeRlGuidance()">✅ Submit Final Answer</button>
+                <button class="rl-action-button button-outline" onclick="loadRlTasks()">ℹ️ Task Info</button>
             </div>
         </div>
 
         <div id="rlResults" class="rl-results">
-            <div class="empty" style="color: var(--muted);">Switch to RL Lab mode and start an episode. The reveal-and-recommend controls will appear only after the mission begins.</div>
+            <div class="empty" style="color: var(--muted);">👆 Click "Start Game" above to begin!</div>
         </div>
     </section>
 
