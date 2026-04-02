@@ -18,7 +18,6 @@ app = FastAPI(
     version="0.3.0",
 )
 
-# Add CORS so UI works from any browser or device
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,30 +28,26 @@ app.add_middleware(
 BASE_DIR = Path(__file__).resolve().parent
 INDEX_FILE = BASE_DIR / "index.html"
 SESSION_COOKIE = "student_opportunity_session"
-env_store: dict[str, ScholarshipEnvironment] = {}
-multiturn_env_store: dict[str, MultiTurnScholarshipGuidanceEnvironment] = {}
+envs = {}
+rl_envs = {}
 
 
-def get_or_create_env(response: Response, session_id: str | None) -> ScholarshipEnvironment:
-    current_session_id = session_id or str(uuid4())
-    response.set_cookie(SESSION_COOKIE, current_session_id, httponly=True, samesite="lax")
-    if current_session_id not in env_store:
-        env_store[current_session_id] = ScholarshipEnvironment()
-    return env_store[current_session_id]
+def get_env(response: Response, sid: str | None):
+    session = sid or str(uuid4())
+    response.set_cookie(SESSION_COOKIE, session, httponly=True, samesite="lax")
+    if session not in envs:
+        envs[session] = ScholarshipEnvironment()
+    return envs[session]
 
+def get_rl_env(response: Response, sid: str | None):
+    session = sid or str(uuid4())
+    response.set_cookie(SESSION_COOKIE, session, httponly=True, samesite="lax")
+    if session not in rl_envs:
+        rl_envs[session] = MultiTurnScholarshipGuidanceEnvironment()
+    return rl_envs[session]
 
-def get_or_create_multiturn_env(
-    response: Response,
-    session_id: str | None,
-) -> MultiTurnScholarshipGuidanceEnvironment:
-    current_session_id = session_id or str(uuid4())
-    response.set_cookie(SESSION_COOKIE, current_session_id, httponly=True, samesite="lax")
-    if current_session_id not in multiturn_env_store:
-        multiturn_env_store[current_session_id] = MultiTurnScholarshipGuidanceEnvironment()
-    return multiturn_env_store[current_session_id]
-
-
-def get_index_html() -> HTMLResponse:
+def load_html():
+    # print(f"Loading index from {INDEX_FILE}")
     if INDEX_FILE.exists():
         return HTMLResponse(INDEX_FILE.read_text(encoding="utf-8"))
     return HTMLResponse("<h1>Student Opportunity Finder</h1><p>Visit <a href='/docs'>/docs</a> to use the API.</p>")
@@ -60,24 +55,20 @@ def get_index_html() -> HTMLResponse:
 
 @app.get("/", response_class=HTMLResponse)
 def home():
-    return get_index_html()
-
+    return load_html()
 
 @app.get("/ui", response_class=HTMLResponse)
 def ui():
-    return get_index_html()
-
+    return load_html()
 
 @app.get("/health")
 def health():
     return {"status": "healthy", "multi_turn_rl": "available"}
 
-
 @app.post("/reset")
 def reset(response: Response, session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE)):
-    env = get_or_create_env(response, session_id)
+    env = get_env(response, session_id)
     return env.reset()
-
 
 @app.post("/step")
 def step(
@@ -85,9 +76,8 @@ def step(
     response: Response,
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
-    env = get_or_create_env(response, session_id)
+    env = get_env(response, session_id)
     return env.step(action)
-
 
 @app.post("/step/eligibility")
 def step_eligibility(
@@ -95,13 +85,12 @@ def step_eligibility(
     response: Response,
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
-    env = get_or_create_env(response, session_id)
+    env = get_env(response, session_id)
     return env.step(action)
-
 
 @app.get("/state")
 def get_state(response: Response, session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE)):
-    env = get_or_create_env(response, session_id)
+    env = get_env(response, session_id)
     return env.state_snapshot()
 
 
@@ -183,10 +172,9 @@ def feedback(
     response: Response,
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
-    env = get_or_create_env(response, session_id)
+    env = get_env(response, session_id)
     env.update_weights(data.reward, data.focus_area)
     return {"message": "Learning updated successfully", "weights": env.weights}
-
 
 @app.post("/rl/reset")
 def rl_reset(
@@ -194,9 +182,8 @@ def rl_reset(
     response: Response,
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
-    env = get_or_create_multiturn_env(response, session_id)
+    env = get_rl_env(response, session_id)
     return env.reset(request.task_name)
-
 
 @app.post("/rl/step")
 def rl_step(
@@ -204,13 +191,12 @@ def rl_step(
     response: Response,
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
-    env = get_or_create_multiturn_env(response, session_id)
+    env = get_rl_env(response, session_id)
     return env.step(action)
-
 
 @app.get("/rl/state")
 def rl_state(response: Response, session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE)):
-    env = get_or_create_multiturn_env(response, session_id)
+    env = get_rl_env(response, session_id)
     return env.state_snapshot()
 
 

@@ -136,6 +136,24 @@ class ScholarshipEnvironment:
             done=True,
             reward=reward,
         )
+                    )
+                )
+
+        matched.sort(key=lambda item: item.match_score, reverse=True)
+
+        top_scores = [item.match_score for item in matched[:3]]
+        average_top_score = sum(top_scores) / len(top_scores) if top_scores else 0.0
+        coverage = min(1.0, len(matched) / 5)
+        reward = round(min(1.0, 0.65 * average_top_score + 0.35 * coverage), 2)
+        self.state.total_reward += reward
+
+        return ScholarshipObservation(
+            matched_scholarships=matched,
+            total_found=len(matched),
+            message=f"Found {len(matched)} scholarships for you.",
+            done=True,
+            reward=reward,
+        )
 
     def _calculate_scholarship_match(self, action: StudentAction, scholarship: dict):
         score = 1.0
@@ -283,7 +301,7 @@ class ScholarshipEnvironment:
         matched = []
 
         for exam in exams:
-            score, reason, age_relaxation = self._calculate_exam_match(action, exam)
+            score, reason, age_relaxation = self._calc_exam_match(action, exam)
             if score > 0.3:
                 matched.append(
                     ExamResult(
