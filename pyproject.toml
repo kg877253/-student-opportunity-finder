@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "student-opportunity-finder"
+version = "0.3.0"
+description = "A real-world OpenEnv environment that helps Indian students discover scholarships, discover government or entrance exams, and evaluate detailed scholarship eligibility."
+authors = [
+    {name = "Kartik and Team", email = "kartik@example.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "pydantic>=2.0.0",
+    "requests>=2.25.0",
+    "openai>=2.7.2",
+    "python-multipart>=0.0.18",
+    "httpx>=0.28.1",
+    "openenv-core>=0.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "ruff>=0.9.3",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[project.urls]
+Homepage = "https://huggingface.co/spaces/kartikgod/student-opportunity-finder"
+Repository = "https://github.com/kartikgod/student-opportunity-finder"
+Documentation = "https://huggingface.co/spaces/kartikgod/student-opportunity-finder"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.isort]
+known-first-party = ["app", "environment", "models", "graders"]
