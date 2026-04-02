@@ -2,6 +2,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from fastapi import Cookie, FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
 from environment import ScholarshipEnvironment
@@ -15,6 +16,14 @@ app = FastAPI(
     title="Student Opportunity Finder",
     description="A real-world OpenEnv environment for scholarship discovery, exam discovery, and eligibility analysis.",
     version="0.3.0",
+)
+
+# Add CORS so UI works from any browser or device
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -107,26 +116,14 @@ def get_tasks():
                 "step_action": {
                     "task": "find_scholarships",
                     "student_fields": [
-                        "name",
-                        "gender",
-                        "category",
-                        "state",
-                        "marks_class10",
-                        "marks_class12",
-                        "annual_income",
-                        "course_level",
-                        "course_name",
-                        "age",
+                        "name", "gender", "category", "state",
+                        "marks_class10", "marks_class12", "annual_income",
+                        "course_level", "course_name", "age",
                     ],
                     "optional_fields": [
-                        "current_marks",
-                        "previous_marks",
-                        "undergraduate_marks",
-                        "year_of_study",
-                        "attendance_percentage",
-                        "study_location",
-                        "domicile_state",
-                        "college_type",
+                        "current_marks", "previous_marks", "undergraduate_marks",
+                        "year_of_study", "attendance_percentage", "study_location",
+                        "domicile_state", "college_type",
                     ],
                 },
             },
@@ -137,16 +134,9 @@ def get_tasks():
                 "step_action": {
                     "task": "find_exams",
                     "student_fields": [
-                        "name",
-                        "gender",
-                        "category",
-                        "state",
-                        "marks_class10",
-                        "marks_class12",
-                        "annual_income",
-                        "course_level",
-                        "course_name",
-                        "age",
+                        "name", "gender", "category", "state",
+                        "marks_class10", "marks_class12", "annual_income",
+                        "course_level", "course_name", "age",
                     ],
                 },
             },
@@ -236,8 +226,7 @@ def rl_tasks():
                 "goal": config["goal"],
                 "max_steps": config["max_steps"],
                 "initial_hidden_fields": [
-                    field
-                    for field in config["student_profile"]
+                    field for field in config["student_profile"]
                     if field not in config["initial_revealed_fields"] and field != "name"
                 ],
                 "critical_fields": config["critical_fields"],

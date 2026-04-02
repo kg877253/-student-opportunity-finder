@@ -1,219 +1,320 @@
 ---
 title: Student Opportunity Finder
-emoji: "🎓"
+emoji: 🎓
 colorFrom: blue
 colorTo: green
 sdk: docker
 pinned: false
-tags:
-  - openenv
-  - education
-  - scholarships
 ---
 
-# Student Opportunity Finder
+# 🎓 Student Opportunity Finder — OpenEnv RL Environment
 
-Student Opportunity Finder is a real-world OpenEnv environment for education support. It models a workflow that students, mentors, NGOs, and counseling desks actually perform: finding scholarships, finding government or entrance exams, and checking detailed eligibility for a named program.
+> **India's first AI-powered scholarship and government exam finder built as an RL environment**
+> Built for the **Meta PyTorch OpenEnv Hackathon 2026** by Team DU
 
-## Why This Environment Matters
+---
 
-Students often miss opportunities because rules are fragmented across portals and eligibility conditions are easy to misread. This environment turns that workflow into a structured agent task with:
+## 🌐 Live Links
 
-- typed actions and observations
-- partial-progress rewards instead of only binary success
-- deterministic graders for three task levels
-- a deployable FastAPI plus Docker setup for Hugging Face Spaces
+| Resource | Link |
+|---|---|
+| 🚀 Live App (Student UI) | [Open App](https://kartikgod-student-opportunity-finder.hf.space) |
+| 📖 API Documentation | [Open Docs](https://kartikgod-student-opportunity-finder.hf.space/docs) |
+| 📊 Baseline Scores | [View Scores](https://kartikgod-student-opportunity-finder.hf.space/baseline) |
+| 🤗 HuggingFace Space | [Open Space](https://huggingface.co/spaces/kartikgod/student-opportunity-finder) |
 
-## Tasks
+---
 
-### Task 1: Scholarship Finder
+## 🎯 What This Environment Does
 
-Difficulty: easy
+Millions of Indian students miss out on scholarships and government exam opportunities simply because they don't know about them. This RL environment trains AI agents to solve that problem!
 
-Input a student profile and rank relevant scholarships while filtering out obviously ineligible options.
+Given a student's profile, the AI agent:
+- Finds matching scholarships with eligibility scores and detailed reasons
+- Finds government exams the student can apply for
+- Checks detailed eligibility for any specific scholarship
 
-### Task 2: Exam Finder
+---
 
-Difficulty: medium
+## 🏗️ Environment Architecture
 
-Input a student profile and rank relevant government or entrance exams while respecting age, qualification, category relaxation, and course restrictions.
-
-### Task 3: Eligibility Checker
-
-Difficulty: hard
-
-Input a student profile plus an exact scholarship name and return passed criteria, failed criteria, and any missing information that needs manual review.
-
-## OpenEnv Interface
-
-### `POST /reset`
-
-Returns a fresh `EnvironmentState`.
-
-### `POST /step`
-
-Accepts one discriminated action object:
-
-- `task = "find_scholarships"` with `StudentAction`
-- `task = "find_exams"` with `StudentAction`
-- `task = "check_eligibility"` with `EligibilityAction`
-
-Returns a typed `StepResult`:
-
-- `observation`
-- `reward`
-- `done`
-- `info`
-
-### `GET /state`
-
-Returns the current environment state for the active session.
-
-## Action Space
-
-Core fields:
-
-- `name`
-- `gender`
-- `category`
-- `state`
-- `marks_class10`
-- `marks_class12`
-- `annual_income`
-- `course_level`
-- `course_name`
-- `age`
-- `task`
-
-Optional enrichment fields:
-
-- `current_marks`
-- `previous_marks`
-- `undergraduate_marks`
-- `year_of_study`
-- `attendance_percentage`
-- `study_location`
-- `domicile_state`
-- `college_type`
-
-Eligibility actions additionally include:
-
-- `scholarship_name`
-- nested `student`
-
-## Observation Space
-
-Search tasks return ranked match lists with:
-
-- scholarship or exam metadata
-- `match_score`
-- `match_reason`
-
-Eligibility returns:
-
-- `passed_criteria`
-- `failed_criteria`
-- `manual_review_criteria`
-- `eligibility_score`
-
-All `step()` calls return a top-level `StepResult` envelope with OpenEnv-style reward and info fields.
-
-## Reward Design
-
-The reward function is shaped across the trajectory:
-
-- scholarship search rewards combine top-match quality with useful coverage
-- exam search rewards combine ranking quality with breadth of valid options
-- eligibility rewards passed checks and penalize missing required details
-- invalid or clearly mismatched options reduce match quality and final reward
-
-This gives a more useful signal than a single end-of-episode success bit.
-
-## Graders
-
-The three graders are deterministic and return scores in `[0.0, 1.0]`.
-
-- `grade_task1()` checks that scholarship recommendations include valid expected matches and exclude invalid ones.
-- `grade_task2()` checks that exam recommendations include strong expected options and avoid false positives like `GATE 2026` for a `B.Com` profile.
-- `grade_task3()` checks that detailed eligibility catches failure conditions for a scholarship with stricter rules.
-
-## Baseline and Inference
-
-`baseline.py` exercises the local environment directly through HTTP.
-
-`inference.py` is the submission-ready script required by the hackathon. It:
-
-- uses the OpenAI client
-- reads `API_BASE_URL`, `MODEL_NAME`, and `HF_TOKEN` or `OPENAI_API_KEY`
-- queries the environment task metadata
-- asks the model for structured JSON actions
-- runs the actions through the environment
-- prints task scores and the average
-
-Optional environment variables:
-
-- `ENV_BASE_URL` defaults to `http://localhost:8000`
-
-## Setup
-
-```bash
-pip install -r requirements.txt
-uvicorn app:app --host 0.0.0.0 --port 8000
+```
+Student Profile (Action)
+        ↓
+ScholarshipEnvironment
+        ↓
+    ┌─────────────────────────────┐
+    │  Task 1: Scholarship Finder │  ← Easy
+    │  Task 2: Exam Finder        │  ← Medium  
+    │  Task 3: Eligibility Check  │  ← Hard
+    └─────────────────────────────┘
+        ↓
+Matched Results + Reward (0.0 → 1.0)
 ```
 
-Run local smoke tests:
+---
 
+## 📋 3 Tasks
+
+### Task 1 — Scholarship Finder (Easy) 🎓
+Give a student profile, get a ranked list of matching scholarships with match scores between 0.0 and 1.0 and detailed reasons for each match.
+
+**Reward:** Based on number and quality of matches found (0.0 to 1.0)
+
+### Task 2 — Government Exam Finder (Medium) 📋
+Give a student profile, get a list of government exams the student can apply for — with eligibility details, salary range and category-wise age relaxation.
+
+**Reward:** Based on number of relevant exams found (0.0 to 1.0)
+
+### Task 3 — Eligibility Checker (Hard) ✅
+Give a student profile and a specific scholarship name. Get a detailed pass/fail result for every single eligibility condition — gender, state, category, marks, income and age.
+
+**Reward:** Directly equals the eligibility score (0.0 to 1.0)
+
+---
+
+## 🎮 OpenEnv Interface
+
+Every task uses the standard 3-method OpenEnv interface:
+
+```python
+# Reset environment
+env.reset()
+
+# Task 1 - Find Scholarships
+result = env.step(StudentAction(
+    name="Kartik",
+    gender="Male",
+    category="General",
+    state="Delhi",
+    marks_class10=85.0,
+    marks_class12=82.0,
+    annual_income=250000,
+    course_level="Undergraduate",
+    course_name="B.Sc",
+    age=18,
+    task="find_scholarships"
+))
+
+# Task 2 - Find Exams
+result = env.step(StudentAction(..., task="find_exams"))
+
+# Task 3 - Check Eligibility
+result = env.step(EligibilityAction(
+    student=StudentAction(...),
+    scholarship_name="Buddy4Study ICICI Bank Domestic Education Loan Programme"
+))
+
+# Get state
+state = env.state()
+```
+
+---
+
+## 📥 Action Space
+
+**StudentAction** (for Task 1 and Task 2):
+
+| Field | Type | Description |
+|---|---|---|
+| name | string | Student's name |
+| gender | string | Male or Female |
+| category | string | General, OBC, SC, ST or Minority |
+| state | string | Like Delhi, Maharashtra etc |
+| marks_class10 | float | Class 10 percentage |
+| marks_class12 | float | Class 12 percentage |
+| annual_income | float | Annual family income in rupees |
+| course_level | string | Undergraduate or Postgraduate |
+| course_name | string | Like B.Sc, B.Tech etc |
+| age | integer | Student's age |
+| task | string | find_scholarships or find_exams |
+
+**EligibilityAction** (for Task 3):
+
+| Field | Type | Description |
+|---|---|---|
+| student | StudentAction | Complete student profile |
+| scholarship_name | string | Exact scholarship name to check |
+
+---
+
+## 📤 Observation Space
+
+**ScholarshipObservation** (Task 1):
+```json
+{
+  "matched_scholarships": [
+    {
+      "name": "Scholarship Name",
+      "amount": "50000",
+      "deadline": "30-04-2026",
+      "match_score": 1.0,
+      "match_reason": "Great match! Your marks meet the requirement..."
+    }
+  ],
+  "total_found": 5,
+  "message": "Found 5 scholarships for you!",
+  "done": true,
+  "reward": 1.0
+}
+```
+
+**EligibilityObservation** (Task 3):
+```json
+{
+  "scholarship_name": "ICICI Bank Education Loan",
+  "is_eligible": true,
+  "eligibility_score": 1.0,
+  "passed_criteria": ["Gender: Male is accepted", "..."],
+  "failed_criteria": [],
+  "message": "Congratulations! You are eligible!",
+  "done": true,
+  "reward": 1.0
+}
+```
+
+---
+
+## 📊 Baseline Scores
+
+| Task | Description | Score |
+|---|---|---|
+| Task 1 | Scholarship Finder | **1.0 / 1.0** |
+| Task 2 | Exam Finder | **1.0 / 1.0** |
+| Task 3 | Eligibility Checker | **1.0 / 1.0** |
+| **Average** | **All Tasks** | **1.0 / 1.0** |
+
+Run baseline yourself:
 ```bash
-python -m unittest test_app.py
 python baseline.py
 ```
 
-Run the inference baseline:
+---
 
+## 🚀 Setup and Run Locally
+
+**Step 1 — Clone the repo:**
 ```bash
-set API_BASE_URL=https://your-openai-compatible-endpoint
-set MODEL_NAME=your-model-name
-set HF_TOKEN=your-token
-python inference.py
+git clone https://github.com/kg877253/-student-opportunity-finder.git
+cd -student-opportunity-finder
 ```
 
-## Docker
+**Step 2 — Install dependencies:**
+```bash
+pip install -r requirements.txt
+```
 
-Build and run:
+**Step 3 — Run the server:**
+```bash
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+```
+
+**Step 4 — Open in browser:**
+```
+http://localhost:8000        ← Student UI
+http://localhost:8000/docs   ← API Documentation
+http://localhost:8000/baseline ← Baseline Scores
+```
+
+---
+
+## 🐳 Run with Docker
 
 ```bash
 docker build -t student-opportunity-finder .
 docker run -p 7860:7860 student-opportunity-finder
 ```
 
-## Hugging Face Space Checklist
+---
 
-Before submission, set these variables in the Space configuration:
+## 📡 API Endpoints
 
-- `API_BASE_URL`
-- `MODEL_NAME`
-- `HF_TOKEN`
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | / | Student UI homepage |
+| GET | /health | Health check |
+| POST | /reset | Reset environment |
+| POST | /step | Find scholarships or exams |
+| POST | /step/eligibility | Check eligibility |
+| GET | /state | Get current state |
+| GET | /tasks | List all tasks |
+| GET | /baseline | Baseline scores |
+| GET | /grader | Grader scores |
+| GET | /docs | API documentation |
 
-Recommended extras:
+---
 
-- `OPENAI_API_KEY` if your provider expects it
-- `ENV_BASE_URL` only if `inference.py` should target a non-default environment URL
+## 📚 Data
 
-## Submission Notes
+**Scholarships (15 total):**
+- Real data from Buddy4Study
+- Covers General, OBC, SC, ST, Minority categories
+- Covers all India and state-specific scholarships
+- Merit, need-based, loan and sports scholarships
 
-This repo now includes:
+**Government Exams (15 total):**
+- SSC CGL, UPSC, NDA, IBPS PO, SBI PO
+- JEE Main, NEET, CUET, GATE
+- Delhi Police, DSSSB, RRB NTPC and more
 
-- `openenv.yaml`
-- `Dockerfile`
-- `inference.py`
-- deterministic graders
-- typed Pydantic actions, observations, and step envelopes
-- a working UI and FastAPI app
-- `.env.example` for deployment variables
-- `.dockerignore` for leaner container builds
+---
 
-## Remaining Improvement Ideas
+## 🏆 Reward Function
 
-- add more scholarship-specific rules from `special_conditions`
-- expand the dataset and add citation or source links for each scholarship or exam
-- add a second hard task focused on multi-step student counseling or recommendation refinement
+```python
+# Partial rewards throughout episode
+reward = min(1.0, matched_count / threshold)
+
+# Eligibility reward = exact eligibility score
+reward = passed_criteria / total_criteria
+```
+
+Rewards are never binary — always partial progress signals!
+
+---
+
+## 📁 Project Structure
+
+```
+student-opportunity-finder/
+├── app.py                 ← FastAPI server
+├── environment.py         ← Core RL environment
+├── models.py              ← Pydantic data models
+├── graders.py             ← Task graders (0.0 to 1.0)
+├── scholarships_data.py   ← Scholarship database
+├── exams_data.py          ← Exam database
+├── baseline.py            ← Baseline inference script
+├── index.html             ← Student-facing UI
+├── Dockerfile             ← Container definition
+├── requirements.txt       ← Dependencies
+└── openenv.yaml           ← OpenEnv metadata
+```
+
+---
+
+## 👥 Built By
+
+| Name | Role | College |
+|---|---|---|
+| Kartik Gupta | Lead Developer | Delhi University |
+| Team Member 2 | Exam Finder Module | Delhi University |
+| Team Member 3 | Testing and Deployment | Delhi University |
+
+**1st Year BSc Physical Science with Computer Science**
+**University of Delhi, India 🇮🇳**
+
+---
+
+## 💡 Real World Impact
+
+This environment addresses a genuine problem — millions of Indian students from small towns and villages miss life-changing scholarship opportunities simply because they don't have access to the right information. Our AI agent learns to bridge this gap!
+
+---
+
+## 📜 License
+
+MIT License — Free to use, modify and distribute!
+
+---
+
+*Built with ❤️ for India | Meta PyTorch OpenEnv Hackathon 2026*
