@@ -1896,25 +1896,31 @@
             const finalScore = meta.totalReward !== undefined ? meta.totalReward : observation.reward;
             const scoreColor = finalScore >= 0.5 ? '#10b981' : finalScore >= 0 ? '#f59e0b' : '#ef4444';
             const scoreEmoji = finalScore >= 0.5 ? '🎉' : finalScore >= 0 ? '⚠️' : '❌';
+            const bgGradient = finalScore >= 0.5 
+                ? 'linear-gradient(135deg, #065f46, #047857)' 
+                : finalScore >= 0 
+                    ? 'linear-gradient(135deg, #92400e, #b45309)' 
+                    : 'linear-gradient(135deg, #7f1d1d, #991b1b)';
             
             finalResultsHTML = `
-                <div class="results-header" style="margin-bottom: 20px; background: linear-gradient(135deg, ${scoreColor}22, ${scoreColor}11);">
-                    <h2 style="color: white; font-size: 2rem;">${scoreEmoji} Episode Complete!</h2>
-                    <p style="color: rgba(255,255,255,0.9); font-size: 1.2rem; margin: 12px 0;">
-                        <strong>FINAL SCORE: ${finalScore.toFixed(2)}</strong>
-                    </p>
-                    <div style="display: grid; gap: 12px; margin-top: 16px;">
-                        <div style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 12px;">
-                            <strong style="color: white; display: block; margin-bottom: 8px;">🎓 Agent's Scholarship Recommendations:</strong>
+                <div style="margin-bottom: 24px; background: ${bgGradient}; padding: 32px; border-radius: 20px; border: 2px solid ${scoreColor}; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                    <h2 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 16px; text-align: center;">${scoreEmoji} Episode Complete!</h2>
+                    <div style="text-align: center; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+                        <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 8px;">CUMULATIVE REWARD (All Turns)</div>
+                        <div style="color: #ffffff; font-size: 3rem; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${finalScore.toFixed(2)}</div>
+                    </div>
+                    <div style="display: grid; gap: 16px;">
+                        <div style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; border-left: 4px solid #10b981;">
+                            <strong style="color: #ffffff; display: block; margin-bottom: 12px; font-size: 1.1rem;">🎓 Agent's Scholarship Recommendations:</strong>
                             ${observation.draft_scholarships && observation.draft_scholarships.length > 0 
-                                ? observation.draft_scholarships.map(s => `<div style="color: #a7f3d0; padding: 4px 0;">• ${s}</div>`).join("")
-                                : '<div style="color: #fecaca;">• None submitted</div>'}
+                                ? observation.draft_scholarships.map(s => `<div style="color: #d1fae5; padding: 6px 0; font-size: 1.05rem;">✓ ${s}</div>`).join("")
+                                : '<div style="color: #fecaca; font-weight: 600;">✗ None submitted (MAJOR PENALTY)</div>'}
                         </div>
-                        <div style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 12px;">
-                            <strong style="color: white; display: block; margin-bottom: 8px;">📋 Agent's Exam Recommendations:</strong>
+                        <div style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; border-left: 4px solid #3b82f6;">
+                            <strong style="color: #ffffff; display: block; margin-bottom: 12px; font-size: 1.1rem;">📋 Agent's Exam Recommendations:</strong>
                             ${observation.draft_exams && observation.draft_exams.length > 0 
-                                ? observation.draft_exams.map(e => `<div style="color: #a7f3d0; padding: 4px 0;">• ${e}</div>`).join("")
-                                : '<div style="color: #fecaca;">• None submitted</div>'}
+                                ? observation.draft_exams.map(e => `<div style="color: #d1fae5; padding: 6px 0; font-size: 1.05rem;">✓ ${e}</div>`).join("")
+                                : '<div style="color: #fecaca; font-weight: 600;">✗ None submitted</div>'}
                         </div>
                     </div>
                 </div>
