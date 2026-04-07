@@ -14,6 +14,52 @@ API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4")
 API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
 
+# Fallback data if LLM not available
+FALLBACK_ACTIONS = {
+    "find_scholarships": {
+        "task": "find_scholarships",
+        "name": "Asha",
+        "gender": "Female",
+        "category": "General",
+        "state": "Delhi",
+        "marks_class10": 92.0,
+        "marks_class12": 91.0,
+        "annual_income": 200000,
+        "course_level": "Undergraduate",
+        "course_name": "B.Tech",
+        "age": 18
+    },
+    "find_exams": {
+        "task": "find_exams",
+        "name": "Rohan",
+        "gender": "Male",
+        "category": "General",
+        "state": "Delhi",
+        "marks_class10": 86.0,
+        "marks_class12": 84.0,
+        "annual_income": 300000,
+        "course_level": "Graduation",
+        "course_name": "B.Com",
+        "age": 22
+    },
+    "check_eligibility": {
+        "task": "check_eligibility",
+        "student": {
+            "name": "Riya",
+            "gender": "Female",
+            "category": "General",
+            "state": "Delhi",
+            "marks_class10": 92.0,
+            "marks_class12": 92.0,
+            "annual_income": 100000,
+            "course_level": "Undergraduate",
+            "course_name": "B.Tech",
+            "age": 21
+        },
+        "scholarship_name": "JN Tata Endowment Loan Scholarship 2026-27"
+    }
+}
+
 
 def log_start(task_name: str):
     timestamp = datetime.now().isoformat()
@@ -51,16 +97,47 @@ def wait_for_server(max_attempts=30, delay=2):
     return False
 
 
-def build_client() -> OpenAI:
+def build_client() -> OpenAI | None:
+    """Build OpenAI client if API key available, per checklist requirement."""
     if not API_KEY:
-        print("WARNING: No API key found, using mock client", flush=True, file=sys.stderr)
+        print("No API key - using fallback mode", flush=True, file=sys.stderr)
         return None
-    return OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    try:
+        client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+        print(f"OpenAI client configured: {API_BASE_URL}", flush=True, file=sys.stderr)
+        return client
+    except Exception as e:
+        print(f"Failed to create OpenAI client: {e}", flush=True, file=sys.stderr)
+        return None
 
 
-def call_model(client: OpenAI, system_prompt: str, user_prompt: str) -> dict:
-    if client is None:
-        return {"task": "mock_task"}
+def generate_action_with_llm(client: OpenAI, task_name: str, task_schema: dict) -> dict:
+    """Use LLM to generate action (per checklist requirement)."""
+    prompts = {
+        "find_scholarships": (
+            "Generate action JSON for find_scholarships task.\n"
+            "Student: Asha, female, general, Delhi, Class 10=92, Class 12=91, "
+            "income=200k, undergraduate B.Tech, age 18."
+        ),
+        "find_exams": (
+            "Generate action JSON for find_exams task.\n"
+            "Student: Rohan, male, general, Delhi, Class 10=86, Class 12=84, "
+            "income=300k, graduation B.Com, age 22."
+        ),
+        "check_eligibility": (
+            "Generate action JSON for check_eligibility task.\n"
+            "Student: Riya, female, general, Delhi, Class 10=92, Class 12=92, "
+            "income=100k, undergraduate B.Tech, age 21.\n"
+            "Scholarship: JN Tata Endowment Loan Scholarship 2026-27"
+        )
+    }
+    
+    system_prompt = (
+        "You are an AI agent for an OpenEnv scholarship finder. "
+        "Return only valid JSON matching the task schema."
+    )
+    user_prompt = prompts.get(task_name, "") + f"\n\nSchema: {json.dumps(task_schema)}"
+    
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
@@ -74,7 +151,7 @@ def call_model(client: OpenAI, system_prompt: str, user_prompt: str) -> dict:
         content = response.choices[0].message.content
         return json.loads(content)
     except Exception as e:
-        print(f"Error calling model: {e}", flush=True, file=sys.stderr)
+        print(f"LLM call failed: {e}", flush=True, file=sys.stderr)
         raise
 
 
@@ -93,126 +170,68 @@ def main():
         # Wait for server to be ready
         if not wait_for_server():
             print("ERROR: Environment server is not available", flush=True, file=sys.stderr)
-            print("ERROR: Make sure the server is running on the expected port", flush=True, file=sys.stderr)
             sys.exit(1)
         
-        # Get tasks with error handling
+        # Build OpenAI client (per checklist requirement)
+        client = build_client()
+        use_llm = client is not None
+        
+        # Get tasks
         try:
             tasks_response = requests.get(f"{ENV_BASE_URL}/tasks", timeout=10)
             tasks_response.raise_for_status()
             tasks = tasks_response.json()["tasks"]
+            task_map = {task["name"]: task for task in tasks}
             print(f"Loaded {len(tasks)} tasks", flush=True, file=sys.stderr)
         except Exception as e:
             print(f"Error fetching tasks: {e}", flush=True, file=sys.stderr)
             sys.exit(1)
 
-        # Use baseline approach - direct API calls without LLM
         scores = {}
+        task_names = ["find_scholarships", "find_exams", "check_eligibility"]
+        grader_keys = ["task1", "task2", "task3"]
         
-        # Task 1: find_scholarships
-        task_name = "find_scholarships"
-        log_start(task_name)
-        try:
-            action = {
-                "task": "find_scholarships",
-                "name": "Asha",
-                "gender": "Female",
-                "category": "General",
-                "state": "Delhi",
-                "marks_class10": 92.0,
-                "marks_class12": 91.0,
-                "annual_income": 200000,
-                "course_level": "Undergraduate",
-                "course_name": "B.Tech",
-                "age": 18
-            }
+        for task_name, grader_key in zip(task_names, grader_keys):
+            log_start(task_name)
             
-            result = run_step(action)
-            observation = result.get("observation", {})
-            reward = result["reward"]
-            done = result.get("done", True)
-            
-            log_step(action, observation, reward, done)
-            scores["task1"] = reward
-            log_end(task_name, reward)
-        except Exception as e:
-            print(f"Error processing task {task_name}: {e}", flush=True, file=sys.stderr)
-            scores["task1"] = 0.0
-            log_end(task_name, 0.0)
+            try:
+                # Try LLM first if available (per checklist)
+                if use_llm:
+                    try:
+                        print(f"Using LLM for {task_name}...", flush=True, file=sys.stderr)
+                        action = generate_action_with_llm(client, task_name, task_map[task_name])
+                    except Exception as e:
+                        print(f"LLM failed, using fallback: {e}", flush=True, file=sys.stderr)
+                        action = FALLBACK_ACTIONS[task_name]
+                else:
+                    # Use fallback if no API key
+                    print(f"Using fallback for {task_name}", flush=True, file=sys.stderr)
+                    action = FALLBACK_ACTIONS[task_name]
+                
+                # Call environment
+                result = run_step(action)
+                observation = result.get("observation", {})
+                reward = result["reward"]
+                done = result.get("done", True)
+                
+                log_step(action, observation, reward, done)
+                scores[grader_key] = reward
+                log_end(task_name, reward)
+                
+            except Exception as e:
+                print(f"Error processing {task_name}: {e}", flush=True, file=sys.stderr)
+                scores[grader_key] = 0.0
+                log_end(task_name, 0.0)
 
-        # Task 2: find_exams
-        task_name = "find_exams"
-        log_start(task_name)
-        try:
-            action = {
-                "task": "find_exams",
-                "name": "Rohan",
-                "gender": "Male",
-                "category": "General",
-                "state": "Delhi",
-                "marks_class10": 86.0,
-                "marks_class12": 84.0,
-                "annual_income": 300000,
-                "course_level": "Graduation",
-                "course_name": "B.Com",
-                "age": 22
-            }
-            
-            result = run_step(action)
-            observation = result.get("observation", {})
-            reward = result["reward"]
-            done = result.get("done", True)
-            
-            log_step(action, observation, reward, done)
-            scores["task2"] = reward
-            log_end(task_name, reward)
-        except Exception as e:
-            print(f"Error processing task {task_name}: {e}", flush=True, file=sys.stderr)
-            scores["task2"] = 0.0
-            log_end(task_name, 0.0)
-
-        # Task 3: check_eligibility
-        task_name = "check_eligibility"
-        log_start(task_name)
-        try:
-            action = {
-                "task": "check_eligibility",
-                "student": {
-                    "name": "Riya",
-                    "gender": "Female",
-                    "category": "General",
-                    "state": "Delhi",
-                    "marks_class10": 92.0,
-                    "marks_class12": 92.0,
-                    "annual_income": 100000,
-                    "course_level": "Undergraduate",
-                    "course_name": "B.Tech",
-                    "age": 21
-                },
-                "scholarship_name": "JN Tata Endowment Loan Scholarship 2026-27"
-            }
-            
-            result = run_step(action)
-            observation = result.get("observation", {})
-            reward = result["reward"]
-            done = result.get("done", True)
-            
-            log_step(action, observation, reward, done)
-            scores["task3"] = reward
-            log_end(task_name, reward)
-        except Exception as e:
-            print(f"Error processing task {task_name}: {e}", flush=True, file=sys.stderr)
-            scores["task3"] = 0.0
-            log_end(task_name, 0.0)
-
+        # Print summary to stderr
         scores["average"] = round(mean(scores.values()), 2)
         print(f"\n{'='*50}", flush=True, file=sys.stderr)
         print(f"FINAL RESULTS", flush=True, file=sys.stderr)
         print(f"{'='*50}", flush=True, file=sys.stderr)
-        print(f"Task 1 (Scholarship Finder): {scores['task1']}", flush=True, file=sys.stderr)
-        print(f"Task 2 (Exam Finder): {scores['task2']}", flush=True, file=sys.stderr)
-        print(f"Task 3 (Eligibility Check): {scores['task3']}", flush=True, file=sys.stderr)
-        print(f"Average Score: {scores['average']}", flush=True, file=sys.stderr)
+        print(f"Task 1: {scores['task1']}", flush=True, file=sys.stderr)
+        print(f"Task 2: {scores['task2']}", flush=True, file=sys.stderr)
+        print(f"Task 3: {scores['task3']}", flush=True, file=sys.stderr)
+        print(f"Average: {scores['average']}", flush=True, file=sys.stderr)
         print(f"{'='*50}", flush=True, file=sys.stderr)
         
     except Exception as e:
