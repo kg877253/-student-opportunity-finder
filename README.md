@@ -123,6 +123,30 @@ All tasks: 1.0/1.0
 
 Run: `python baseline.py`
 
+## Testing the Submission
+
+For judges or anyone wanting to test locally:
+
+**Quick way:**
+```bash
+bash run_baseline.sh
+```
+
+**Manual testing:**
+```bash
+# Terminal 1 - start server
+uvicorn app:app --host 0.0.0.0 --port 8000
+
+# Terminal 2 - run inference
+export ENV_BASE_URL="http://localhost:8000"
+export API_BASE_URL="https://api.openai.com/v1"
+export MODEL_NAME="gpt-4"
+export OPENAI_API_KEY="your-key"
+python inference.py
+```
+
+The inference script waits for the server to be ready (up to 60 seconds), so no race conditions. All network errors are handled properly.
+
 ## Setup
 
 ```bash
