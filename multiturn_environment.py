@@ -403,8 +403,8 @@ class MultiTurnScholarshipGuidanceEnvironment:
                 if name in normalized_proposed:
                     hits += 1
                     weighted_hits += 1 / index
-            precision = hits / len(proposed) if proposed else 0.01  # Changed from 0.0
-            recall = hits / len(expected)
+            precision = max(0.01, hits / len(proposed)) if proposed else 0.01  # Clamp to avoid 0.0
+            recall = max(0.01, hits / len(expected))  # Clamp to avoid 0.0
             order_bonus = 0.15 if proposed and expected and normalized_proposed[:1] == normalized_expected[:1] else 0.01  # Changed from 0.0
             weighted_recall = weighted_hits / sum(1 / i for i in range(1, len(normalized_expected) + 1))
             base = (0.35 * precision) + (0.4 * recall) + (0.25 * weighted_recall) + order_bonus

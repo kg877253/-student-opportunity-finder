@@ -155,13 +155,22 @@ def baseline():
     }
 
 
+def _clamp(score: float) -> float:
+    """Clamp score to (0, 1) exclusive."""
+    if score <= 0.0:
+        return 0.01
+    if score >= 1.0:
+        return 0.99
+    return score
+
+
 @app.get("/grader")
 def grader():
     return {
         "grader_scores": {
-            "task1": grade_task1(),
-            "task2": grade_task2(),
-            "task3": grade_task3(),
+            "task1": _clamp(grade_task1()),
+            "task2": _clamp(grade_task2()),
+            "task3": _clamp(grade_task3()),
         }
     }
 
@@ -238,8 +247,8 @@ def rl_baseline():
 def rl_grader():
     return {
         "grader_scores": {
-            "easy_scholarship_shortlist": grade_easy_task(),
-            "medium_exam_guidance": grade_medium_task(),
-            "hard_mixed_guidance": grade_hard_task(),
+            "easy_scholarship_shortlist": _clamp(grade_easy_task()),
+            "medium_exam_guidance": _clamp(grade_medium_task()),
+            "hard_mixed_guidance": _clamp(grade_hard_task()),
         }
     }

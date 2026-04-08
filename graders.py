@@ -9,8 +9,8 @@ def _score_presence(items: list[str], expected: list[str], forbidden: list[str])
     expected_hits = sum(1 for name in expected if name in items)
     forbidden_hits = sum(1 for name in forbidden if name in items)
 
-    expected_score = expected_hits / len(expected) if expected else 0.99
-    penalty = forbidden_hits / len(forbidden) if forbidden else 0.01  # Changed from 0.0
+    expected_score = max(0.01, expected_hits / len(expected)) if expected else 0.99  # Clamp to avoid 0.0
+    penalty = (forbidden_hits / len(forbidden)) if forbidden else 0.0  # Penalty can be 0, that's fine
     raw_score = expected_score - penalty
     # Clamp to (0.01, 0.99) instead of (0, 1)
     return max(0.01, min(0.99, raw_score))

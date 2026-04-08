@@ -16,18 +16,29 @@ MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4")  # Default required
 API_KEY = os.environ.get("API_KEY") or os.environ.get("HF_TOKEN")  # NO default
 
 
+def _clamp_score(score: float) -> float:
+    """CRITICAL: Clamp score to (0, 1) exclusive - validator requirement!"""
+    if score <= 0.0:
+        return 0.01
+    if score >= 1.0:
+        return 0.99
+    return score
+
+
 def log_start(task_name: str):
     timestamp = datetime.now().isoformat()
     print(f"[START] {json.dumps({'task': task_name, 'timestamp': timestamp})}", flush=True)
 
 
 def log_step(action: dict, observation: dict, reward: float, done: bool):
-    print(f"[STEP] {json.dumps({'action': action, 'reward': reward, 'done': done})}", flush=True)
+    clamped = _clamp_score(reward)
+    print(f"[STEP] {json.dumps({'action': action, 'reward': clamped, 'done': done})}", flush=True)
 
 
 def log_end(task_name: str, score: float):
+    clamped = _clamp_score(score)
     timestamp = datetime.now().isoformat()
-    print(f"[END] {json.dumps({'task': task_name, 'score': score, 'timestamp': timestamp})}", flush=True)
+    print(f"[END] {json.dumps({'task': task_name, 'score': clamped, 'timestamp': timestamp})}", flush=True)
 
 
 def wait_for_server(max_attempts=20, delay=1):

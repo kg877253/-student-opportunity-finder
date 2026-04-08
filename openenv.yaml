@@ -38,7 +38,7 @@ observation_space:
     detailed eligibility explanation with passed, failed, and manual-review criteria.
 
 reward:
-  range: [0.0, 1.0]
+  range: [0.01, 0.99]
   description: >
     Rewards combine relevance quality and coverage. Search tasks reward high-quality
     matches plus useful coverage. Eligibility rewards passed criteria and penalizes
@@ -47,7 +47,7 @@ reward:
 tasks:
   - name: find_scholarships
     difficulty: easy
-    reward_range: [0.0, 1.0]
+    reward_range: [0.01, 0.99]
     grader: graders.grade_task1
     description: >
       Produce a high-quality ranked set of scholarships for a student profile while
@@ -55,7 +55,7 @@ tasks:
 
   - name: find_exams
     difficulty: medium
-    reward_range: [0.0, 1.0]
+    reward_range: [0.01, 0.99]
     grader: graders.grade_task2
     description: >
       Produce a strong ranked set of government or entrance exams for a student profile,
@@ -63,7 +63,7 @@ tasks:
 
   - name: check_eligibility
     difficulty: hard
-    reward_range: [0.0, 1.0]
+    reward_range: [0.01, 0.99]
     grader: graders.grade_task3
     description: >
       Evaluate a student against a named scholarship and return explicit passed criteria,
