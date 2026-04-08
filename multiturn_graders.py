@@ -25,7 +25,7 @@ def _play_reference_episode(task_name: str) -> float:
             "primary_scholarship": state.primary_scholarship,
         }
     )
-    return max(0.0, min(1.0, round(result.info.total_reward / 2.0, 2)))
+    return max(0.01, min(0.99, round(result.info.total_reward / 2.0, 2)))  # Changed from (0.0, 1.0)
 
 
 def grade_easy_task() -> float:

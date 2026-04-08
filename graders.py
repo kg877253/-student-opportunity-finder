@@ -9,8 +9,8 @@ def _score_presence(items: list[str], expected: list[str], forbidden: list[str])
     expected_hits = sum(1 for name in expected if name in items)
     forbidden_hits = sum(1 for name in forbidden if name in items)
 
-    expected_score = expected_hits / len(expected) if expected else 0.99  # Changed from 1.0
-    penalty = forbidden_hits / len(forbidden) if forbidden else 0.0
+    expected_score = expected_hits / len(expected) if expected else 0.99
+    penalty = forbidden_hits / len(forbidden) if forbidden else 0.01  # Changed from 0.0
     raw_score = expected_score - penalty
     # Clamp to (0.01, 0.99) instead of (0, 1)
     return max(0.01, min(0.99, raw_score))
@@ -168,9 +168,9 @@ def grade_task3() -> float:
     
     # Scoring based on reasoning quality
     reasoning_score = 0.01  # Start with minimum valid score
-    reasoning_score += 0.33 if course_level_check else 0.0  # Identified level mismatch
-    reasoning_score += 0.33 if should_be_eligible else 0.0   # Correct positive case
-    reasoning_score += 0.33 if marks_reasoning else 0.0      # Edge case handling
+    reasoning_score += 0.32 if course_level_check else 0.01  # Changed from 0.0
+    reasoning_score += 0.32 if should_be_eligible else 0.01   # Changed from 0.0
+    reasoning_score += 0.32 if marks_reasoning else 0.01      # Changed from 0.0
     
     # Ensure score is in (0, 1) exclusive
     return round(max(0.01, min(0.99, reasoning_score)), 2)

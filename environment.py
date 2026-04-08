@@ -140,7 +140,7 @@ class ScholarshipEnvironment:
         )
 
     def _calculate_scholarship_match(self, action: StudentAction, scholarship: dict):
-        score = 1.0
+        score = 0.99  # Changed from 1.0
         reasons = []
         issues = []
         manual_checks = []
@@ -153,7 +153,7 @@ class ScholarshipEnvironment:
             reasons=reasons,
         )
         if basic_failure:
-            return 0.0, issues[0]
+            return 0.01, issues[0]  # Changed from 0.0
 
         score = self._apply_mark_threshold(
             value=action.marks_class10,
@@ -272,7 +272,7 @@ class ScholarshipEnvironment:
             else:
                 reasons.append(f"Attendance {action.attendance_percentage}% meets the requirement")
 
-        score = max(0.0, min(1.0, score))
+        score = max(0.01, min(0.99, score))  # Clamp to (0.01, 0.99)
         if issues:
             reason = "Issues: " + ", ".join(issues)
         else:
@@ -318,7 +318,7 @@ class ScholarshipEnvironment:
         )
 
     def _calculate_exam_match(self, action: StudentAction, exam: dict):
-        score = 1.0
+        score = 0.99  # Changed from 1.0
         reasons = []
         issues = []
         age_relaxation = "No relaxation"
@@ -331,7 +331,7 @@ class ScholarshipEnvironment:
             reasons=reasons,
         )
         if basic_failure:
-            return 0.0, issues[0], age_relaxation
+            return 0.01, issues[0], age_relaxation  # Changed from 0.0
 
         relaxation = exam.get("category_age_relaxation", {})
         extra_years = relaxation.get(action.category, 0)
@@ -358,7 +358,7 @@ class ScholarshipEnvironment:
         else:
             reasons.append(f"Qualification {action.course_level} meets the requirement")
 
-        score = max(0.0, min(1.0, score))
+        score = max(0.01, min(0.99, score))  # Clamp to (0.01, 0.99)
         if issues:
             reason = "Issues: " + ", ".join(issues)
         else:
@@ -376,7 +376,7 @@ class ScholarshipEnvironment:
             return EligibilityObservation(
                 scholarship_name=action.scholarship_name,
                 is_eligible=False,
-                eligibility_score=0.0,
+                eligibility_score=0.01,  # Changed from 0.0
                 passed_criteria=[],
                 failed_criteria=["Scholarship not found in database"],
                 manual_review_criteria=[],

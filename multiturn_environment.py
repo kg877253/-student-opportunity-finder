@@ -188,7 +188,7 @@ class MultiTurnScholarshipGuidanceEnvironment:
             forbidden_scholarships=list(scenario["forbidden_scholarships"]),
             forbidden_exams=list(scenario["forbidden_exams"]),
         )
-        return self._build_observation("Episode reset. Some student fields are hidden.", reward=0.0)
+        return self._build_observation("Episode reset. Some student fields are hidden.", reward=0.01)  # Changed from 0.0
 
     def state_snapshot(self) -> GuidanceEnvironmentState:
         if self.state is None:
@@ -339,12 +339,12 @@ class MultiTurnScholarshipGuidanceEnvironment:
         else:
             recommendation_score = round((0.65 * scholarship_score) + (0.35 * exam_score), 2)
 
-        primary_score = 0.0
+        primary_score = 0.01  # Changed from 0.0
         if self.state.primary_scholarship:
             if primary_scholarship and self._normalize(primary_scholarship) == self._normalize(self.state.primary_scholarship):
-                primary_score = 1.0
+                primary_score = 0.99  # Changed from 1.0
             elif primary_scholarship:
-                primary_score = 0.0
+                primary_score = 0.01  # Changed from 0.0
             else:
                 primary_score = 0.2
         elif primary_scholarship:
@@ -355,7 +355,7 @@ class MultiTurnScholarshipGuidanceEnvironment:
                 0.55 * recommendation_score
                 + 0.2 * primary_score
                 + 0.15 * info_completeness
-                + 0.1 * max(0.0, efficiency)
+                + 0.1 * max(0.01, efficiency)  # Changed from 0.0
             )
             if not scholarship_names and not exam_names:
                 reward -= 0.25
@@ -366,7 +366,7 @@ class MultiTurnScholarshipGuidanceEnvironment:
             if not scholarship_names and not exam_names:
                 reward = -0.05
 
-        reward = round(max(-1.0, min(1.0, reward)), 2)
+        reward = round(max(-0.99, min(0.99, reward)), 2)  # Changed from (-1.0, 1.0)
         messages = [
             f"Scholarship shortlist score: {scholarship_score:.2f}",
             f"Exam shortlist score: {exam_score:.2f}",
@@ -381,9 +381,9 @@ class MultiTurnScholarshipGuidanceEnvironment:
     def _information_completeness(self) -> float:
         assert self.state is not None
         if not self.state.critical_fields:
-            return 1.0
+            return 0.99  # Changed from 1.0
         known = sum(1 for field in self.state.critical_fields if field in self.state.revealed_fields)
-        return round(known / len(self.state.critical_fields), 2)
+        return round(max(0.01, min(0.99, known / len(self.state.critical_fields))), 2)  # Clamp
 
     def _critical_missing_fields(self) -> list[ProfileField]:
         assert self.state is not None
@@ -395,23 +395,23 @@ class MultiTurnScholarshipGuidanceEnvironment:
         normalized_forbidden = {self._normalize(item) for item in forbidden}
 
         if not expected:
-            base = 1.0 if not proposed else max(0.0, 1.0 - (0.25 * len(proposed)))
+            base = 0.99 if not proposed else max(0.01, 0.99 - (0.25 * len(proposed)))  # Changed from 1.0/0.0
         else:
             hits = 0
-            weighted_hits = 0.0
+            weighted_hits = 0.01  # Changed from 0.0
             for index, name in enumerate(normalized_expected, start=1):
                 if name in normalized_proposed:
                     hits += 1
                     weighted_hits += 1 / index
-            precision = hits / len(proposed) if proposed else 0.0
+            precision = hits / len(proposed) if proposed else 0.01  # Changed from 0.0
             recall = hits / len(expected)
-            order_bonus = 0.15 if proposed and expected and normalized_proposed[:1] == normalized_expected[:1] else 0.0
+            order_bonus = 0.15 if proposed and expected and normalized_proposed[:1] == normalized_expected[:1] else 0.01  # Changed from 0.0
             weighted_recall = weighted_hits / sum(1 / i for i in range(1, len(normalized_expected) + 1))
             base = (0.35 * precision) + (0.4 * recall) + (0.25 * weighted_recall) + order_bonus
 
         forbidden_hits = sum(1 for item in normalized_proposed if item in normalized_forbidden)
         penalty = 0.3 * forbidden_hits
-        return round(max(0.0, min(1.0, base - penalty)), 2)
+        return round(max(0.01, min(0.99, base - penalty)), 2)  # Changed from (0.0, 1.0)
 
     def _build_reference_guidance(self, student_profile: dict, scenario: dict) -> dict[str, list[str] | str | None]:
         scholarships_ranked = self._rank_scholarships(student_profile)
