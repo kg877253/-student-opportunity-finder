@@ -182,13 +182,16 @@ def main():
             # Call environment (pass server_ready flag)
             result = run_step(action, server_available=server_ready)
             observation = result.get("observation", {})
-            reward = result["reward"]
+            raw_reward = result["reward"]
             done = result.get("done", True)
+            
+            # CRITICAL: Clamp reward to (0, 1) exclusive - validator requirement!
+            reward = max(0.01, min(0.99, raw_reward))
             
             log_step(action, observation, reward, done)
             scores[grader_key] = reward
             log_end(task_name, reward)
-            print(f"{task_name}: {reward}", flush=True, file=sys.stderr)
+            print(f"{task_name}: {reward} (raw: {raw_reward})", flush=True, file=sys.stderr)
             
         except Exception as e:
             print(f"ERROR in {task_name}: {e}", flush=True, file=sys.stderr)
