@@ -95,10 +95,10 @@ Task schema: {json.dumps(task_info, indent=2)}"""
 def run_step(payload: dict, server_available: bool = True) -> dict:
     """Call environment step endpoint, or return fallback if server unavailable."""
     if not server_available:
-        # Fallback mode - return minimal valid response
+        # Fallback mode - return minimal valid response (score must be in (0,1) exclusive)
         return {
             "observation": {},
-            "reward": 0.0,
+            "reward": 0.01,  # Changed from 0.0 to satisfy (0,1) constraint
             "done": True,
             "info": {"fallback": True}
         }
@@ -109,10 +109,10 @@ def run_step(payload: dict, server_available: bool = True) -> dict:
         return response.json()
     except Exception as e:
         print(f"Error calling /step: {e}", flush=True, file=sys.stderr)
-        # Return fallback on error
+        # Return fallback on error (score must be in (0,1) exclusive)
         return {
             "observation": {},
-            "reward": 0.0,
+            "reward": 0.01,  # Changed from 0.0 to satisfy (0,1) constraint
             "done": True,
             "info": {"error": str(e)}
         }
@@ -194,9 +194,9 @@ def main():
             print(f"ERROR in {task_name}: {e}", flush=True, file=sys.stderr)
             import traceback
             traceback.print_exc(file=sys.stderr)
-            scores[grader_key] = 0.0
-            log_step({}, {}, 0.0, True)
-            log_end(task_name, 0.0)
+            scores[grader_key] = 0.01  # Changed from 0.0 to satisfy (0,1) constraint
+            log_step({}, {}, 0.01, True)  # Changed from 0.0
+            log_end(task_name, 0.01)  # Changed from 0.0
 
     # Summary
     avg = round(mean(scores.values()), 2)

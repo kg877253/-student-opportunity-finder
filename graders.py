@@ -4,14 +4,16 @@ from models import EligibilityAction, StudentAction
 
 def _score_presence(items: list[str], expected: list[str], forbidden: list[str]) -> float:
     if not items:
-        return 0.0
+        return 0.01  # Changed from 0.0 to satisfy (0,1) constraint
 
     expected_hits = sum(1 for name in expected if name in items)
     forbidden_hits = sum(1 for name in forbidden if name in items)
 
-    expected_score = expected_hits / len(expected) if expected else 1.0
+    expected_score = expected_hits / len(expected) if expected else 0.99  # Changed from 1.0
     penalty = forbidden_hits / len(forbidden) if forbidden else 0.0
-    return max(0.0, min(1.0, expected_score - penalty))
+    raw_score = expected_score - penalty
+    # Clamp to (0.01, 0.99) instead of (0, 1)
+    return max(0.01, min(0.99, raw_score))
 
 
 def grade_task1() -> float:
@@ -32,7 +34,7 @@ def grade_task1() -> float:
     )
     result = env.step(student)
     scholarship_names = [item.name for item in result.observation.matched_scholarships]
-    ranking_bonus = 1.0 if scholarship_names[:1] and scholarship_names[0] == "Vivo KanyaGyaan Scholarship Program 2025-26" else 0.7
+    ranking_bonus = 0.99 if scholarship_names[:1] and scholarship_names[0] == "Vivo KanyaGyaan Scholarship Program 2025-26" else 0.7
     presence_score = _score_presence(
         items=scholarship_names,
         expected=[
@@ -41,7 +43,9 @@ def grade_task1() -> float:
         ],
         forbidden=["JN Tata Endowment Loan Scholarship 2026-27"],
     )
-    return round(min(1.0, 0.7 * presence_score + 0.3 * ranking_bonus), 2)
+    raw_score = 0.7 * presence_score + 0.3 * ranking_bonus
+    # Ensure score is in (0, 1) exclusive
+    return round(max(0.01, min(0.99, raw_score)), 2)
 
 
 def grade_task2() -> float:
@@ -66,8 +70,10 @@ def grade_task2() -> float:
         expected=["IBPS Clerk 2025", "SBI PO 2025", "SSC CGL 2025"],
         forbidden=["GATE 2026"],
     )
-    ranking_bonus = 1.0 if "GATE 2026" not in exam_names[:5] else 0.0
-    return round(min(1.0, 0.8 * presence_score + 0.2 * ranking_bonus), 2)
+    ranking_bonus = 0.99 if "GATE 2026" not in exam_names[:5] else 0.01  # Changed from 1.0/0.0
+    raw_score = 0.8 * presence_score + 0.2 * ranking_bonus
+    # Ensure score is in (0, 1) exclusive
+    return round(max(0.01, min(0.99, raw_score)), 2)
 
 
 def grade_task3() -> float:
@@ -81,7 +87,11 @@ def grade_task3() -> float:
     5. Reason about why student is/isn't eligible
     """
     env = ScholarshipEnvironment()
-    student = StudentAction(
+    
+    # Create student profile WITHOUT task field (not allowed in StudentProfile)
+    from models import StudentProfile
+    
+    student1 = StudentProfile(
         name="Riya",
         gender="Female",
         category="General",
@@ -92,12 +102,11 @@ def grade_task3() -> float:
         course_level="Undergraduate",
         course_name="B.Tech",
         age=21,
-        task="check_eligibility",
     )
     
     # Test 1: Overseas postgrad scholarship (should fail - undergrad student)
     action1 = EligibilityAction(
-        student=student,
+        student=student1,
         scholarship_name="JN Tata Endowment Loan Scholarship 2026-27",
         task="check_eligibility"
     )
@@ -109,7 +118,7 @@ def grade_task3() -> float:
                              for c in obs1.failed_criteria)
     
     # Test 2: Women tech scholarship (should pass - female, B.Tech, good marks)
-    student2 = StudentAction(
+    student2 = StudentProfile(
         name="Priya",
         gender="Female",
         category="General",
@@ -121,7 +130,6 @@ def grade_task3() -> float:
         course_name="B.Tech",
         age=19,
         year_of_study=2,
-        task="check_eligibility",
     )
     action2 = EligibilityAction(
         student=student2,
@@ -135,7 +143,7 @@ def grade_task3() -> float:
     should_be_eligible = obs2.is_eligible and obs2.eligibility_score >= 0.8
     
     # Test 3: Complex multi-criteria scholarship
-    student3 = StudentAction(
+    student3 = StudentProfile(
         name="Aarav",
         gender="Male",
         category="SC",
@@ -146,7 +154,6 @@ def grade_task3() -> float:
         course_level="Undergraduate",
         course_name="B.Tech",
         age=20,
-        task="check_eligibility",
     )
     action3 = EligibilityAction(
         student=student3,
@@ -160,12 +167,13 @@ def grade_task3() -> float:
     marks_reasoning = obs3.is_eligible
     
     # Scoring based on reasoning quality
-    reasoning_score = 0.0
-    reasoning_score += 0.35 if course_level_check else 0.0  # Identified level mismatch
-    reasoning_score += 0.35 if should_be_eligible else 0.0   # Correct positive case
-    reasoning_score += 0.30 if marks_reasoning else 0.0      # Edge case handling
+    reasoning_score = 0.01  # Start with minimum valid score
+    reasoning_score += 0.33 if course_level_check else 0.0  # Identified level mismatch
+    reasoning_score += 0.33 if should_be_eligible else 0.0   # Correct positive case
+    reasoning_score += 0.33 if marks_reasoning else 0.0      # Edge case handling
     
-    return round(min(1.0, reasoning_score), 2)
+    # Ensure score is in (0, 1) exclusive
+    return round(max(0.01, min(0.99, reasoning_score)), 2)
 
 
 def grade_all_tasks() -> dict[str, float]:
