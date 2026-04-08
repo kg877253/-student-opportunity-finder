@@ -77,7 +77,8 @@ def step(
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
     env = get_env(response, session_id)
-    return env.step(action)
+    result = env.step(action)
+    return _clamp_response(result)
 
 @app.post("/step/eligibility")
 def step_eligibility(
@@ -86,7 +87,8 @@ def step_eligibility(
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
     env = get_env(response, session_id)
-    return env.step(action)
+    result = env.step(action)
+    return _clamp_response(result)
 
 @app.get("/state")
 def get_state(response: Response, session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE)):
@@ -164,6 +166,28 @@ def _clamp(score: float) -> float:
     return score
 
 
+def _clamp_response(result):
+    """Recursively clamp all score-related fields in response."""
+    if hasattr(result, 'observation'):
+        obs = result.observation
+        # Clamp reward
+        if hasattr(obs, 'reward'):
+            obs.reward = _clamp(obs.reward)
+        # Clamp eligibility_score
+        if hasattr(obs, 'eligibility_score'):
+            obs.eligibility_score = _clamp(obs.eligibility_score)
+        # Clamp match_scores in lists
+        if hasattr(obs, 'matched_scholarships'):
+            for item in obs.matched_scholarships:
+                if hasattr(item, 'match_score'):
+                    item.match_score = _clamp(item.match_score)
+        if hasattr(obs, 'matched_exams'):
+            for item in obs.matched_exams:
+                if hasattr(item, 'match_score'):
+                    item.match_score = _clamp(item.match_score)
+    return result
+
+
 @app.get("/grader")
 def grader():
     return {
@@ -192,7 +216,11 @@ def rl_reset(
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
     env = get_rl_env(response, session_id)
-    return env.reset(request.task_name)
+    result = env.reset(request.task_name)
+    # Clamp reward in observation if present
+    if hasattr(result, 'reward'):
+        result.reward = _clamp(result.reward)
+    return result
 
 @app.post("/rl/step")
 def rl_step(
@@ -201,7 +229,13 @@ def rl_step(
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
     env = get_rl_env(response, session_id)
-    return env.step(action)
+    result = env.step(action)
+    # Clamp reward in result
+    if hasattr(result, 'reward'):
+        result.reward = _clamp(result.reward)
+    if hasattr(result, 'observation') and hasattr(result.observation, 'reward'):
+        result.observation.reward = _clamp(result.observation.reward)
+    return result
 
 @app.get("/rl/state")
 def rl_state(response: Response, session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE)):

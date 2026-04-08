@@ -70,6 +70,25 @@ def reset(response: Response, session_id: str | None = Cookie(default=None, alia
     env = get_env(response, session_id)
     return env.reset()
 
+def _clamp_response(result):
+    """Recursively clamp all score-related fields in response."""
+    if hasattr(result, 'observation'):
+        obs = result.observation
+        if hasattr(obs, 'reward'):
+            obs.reward = _clamp(obs.reward)
+        if hasattr(obs, 'eligibility_score'):
+            obs.eligibility_score = _clamp(obs.eligibility_score)
+        if hasattr(obs, 'matched_scholarships'):
+            for item in obs.matched_scholarships:
+                if hasattr(item, 'match_score'):
+                    item.match_score = _clamp(item.match_score)
+        if hasattr(obs, 'matched_exams'):
+            for item in obs.matched_exams:
+                if hasattr(item, 'match_score'):
+                    item.match_score = _clamp(item.match_score)
+    return result
+
+
 @app.post("/step")
 def step(
     action: EnvironmentAction,
@@ -77,7 +96,8 @@ def step(
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
     env = get_env(response, session_id)
-    return env.step(action)
+    result = env.step(action)
+    return _clamp_response(result)
 
 @app.post("/step/eligibility")
 def step_eligibility(
@@ -86,7 +106,8 @@ def step_eligibility(
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
     env = get_env(response, session_id)
-    return env.step(action)
+    result = env.step(action)
+    return _clamp_response(result)
 
 @app.get("/state")
 def get_state(response: Response, session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE)):
@@ -143,14 +164,23 @@ def get_tasks():
     }
 
 
+def _clamp(score: float) -> float:
+    """Clamp score to (0, 1) exclusive."""
+    if score <= 0.0:
+        return 0.01
+    if score >= 1.0:
+        return 0.99
+    return score
+
+
 @app.get("/baseline")
 def baseline():
     scores = grade_all_tasks()
     return {
-        "task1_scholarship_finder": scores["task1"],
-        "task2_exam_finder": scores["task2"],
-        "task3_eligibility_checker": scores["task3"],
-        "average_score": scores["average"],
+        "task1_scholarship_finder": _clamp(scores["task1"]),
+        "task2_exam_finder": _clamp(scores["task2"]),
+        "task3_eligibility_checker": _clamp(scores["task3"]),
+        "average_score": _clamp(scores["average"]),
         "status": "All tasks are responding correctly.",
     }
 
@@ -159,9 +189,9 @@ def baseline():
 def grader():
     return {
         "grader_scores": {
-            "task1": grade_task1(),
-            "task2": grade_task2(),
-            "task3": grade_task3(),
+            "task1": _clamp(grade_task1()),
+            "task2": _clamp(grade_task2()),
+            "task3": _clamp(grade_task3()),
         }
     }
 
@@ -183,7 +213,10 @@ def rl_reset(
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
     env = get_rl_env(response, session_id)
-    return env.reset(request.task_name)
+    result = env.reset(request.task_name)
+    if hasattr(result, 'reward'):
+        result.reward = _clamp(result.reward)
+    return result
 
 @app.post("/rl/step")
 def rl_step(
@@ -192,7 +225,12 @@ def rl_step(
     session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE),
 ):
     env = get_rl_env(response, session_id)
-    return env.step(action)
+    result = env.step(action)
+    if hasattr(result, 'reward'):
+        result.reward = _clamp(result.reward)
+    if hasattr(result, 'observation') and hasattr(result.observation, 'reward'):
+        result.observation.reward = _clamp(result.observation.reward)
+    return result
 
 @app.get("/rl/state")
 def rl_state(response: Response, session_id: str | None = Cookie(default=None, alias=SESSION_COOKIE)):
@@ -226,10 +264,10 @@ def rl_tasks():
 def rl_baseline():
     scores = grade_all_multiturn_tasks()
     return {
-        "easy_task": scores["easy"],
-        "medium_task": scores["medium"],
-        "hard_task": scores["hard"],
-        "average_score": scores["average"],
+        "easy_task": _clamp(scores["easy"]),
+        "medium_task": _clamp(scores["medium"]),
+        "hard_task": _clamp(scores["hard"]),
+        "average_score": _clamp(scores["average"]),
         "status": "Reference multi-turn baseline completed.",
     }
 
@@ -238,9 +276,9 @@ def rl_baseline():
 def rl_grader():
     return {
         "grader_scores": {
-            "easy_scholarship_shortlist": grade_easy_task(),
-            "medium_exam_guidance": grade_medium_task(),
-            "hard_mixed_guidance": grade_hard_task(),
+            "easy_scholarship_shortlist": _clamp(grade_easy_task()),
+            "medium_exam_guidance": _clamp(grade_medium_task()),
+            "hard_mixed_guidance": _clamp(grade_hard_task()),
         }
     }
 
