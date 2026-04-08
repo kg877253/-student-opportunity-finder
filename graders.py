@@ -2,6 +2,16 @@ from environment import ScholarshipEnvironment
 from models import EligibilityAction, StudentAction
 
 
+def _ensure_valid_score(score: float) -> float:
+    """CRITICAL: Ensure score is strictly between 0 and 1 (exclusive).
+    This is a safety wrapper that guarantees no score can ever be 0.0 or 1.0."""
+    if score <= 0.0:
+        return 0.01
+    if score >= 1.0:
+        return 0.99
+    return round(score, 2)
+
+
 def _score_presence(items: list[str], expected: list[str], forbidden: list[str]) -> float:
     if not items:
         return 0.01  # Changed from 0.0 to satisfy (0,1) constraint
@@ -44,8 +54,7 @@ def grade_task1() -> float:
         forbidden=["JN Tata Endowment Loan Scholarship 2026-27"],
     )
     raw_score = 0.7 * presence_score + 0.3 * ranking_bonus
-    # Ensure score is in (0, 1) exclusive
-    return round(max(0.01, min(0.99, raw_score)), 2)
+    return _ensure_valid_score(raw_score)
 
 
 def grade_task2() -> float:
@@ -70,10 +79,9 @@ def grade_task2() -> float:
         expected=["IBPS Clerk 2025", "SBI PO 2025", "SSC CGL 2025"],
         forbidden=["GATE 2026"],
     )
-    ranking_bonus = 0.99 if "GATE 2026" not in exam_names[:5] else 0.01  # Changed from 1.0/0.0
+    ranking_bonus = 0.99 if "GATE 2026" not in exam_names[:5] else 0.01
     raw_score = 0.8 * presence_score + 0.2 * ranking_bonus
-    # Ensure score is in (0, 1) exclusive
-    return round(max(0.01, min(0.99, raw_score)), 2)
+    return _ensure_valid_score(raw_score)
 
 
 def grade_task3() -> float:
@@ -168,17 +176,16 @@ def grade_task3() -> float:
     
     # Scoring based on reasoning quality
     reasoning_score = 0.01  # Start with minimum valid score
-    reasoning_score += 0.32 if course_level_check else 0.01  # Changed from 0.0
-    reasoning_score += 0.32 if should_be_eligible else 0.01   # Changed from 0.0
-    reasoning_score += 0.32 if marks_reasoning else 0.01      # Changed from 0.0
+    reasoning_score += 0.32 if course_level_check else 0.01
+    reasoning_score += 0.32 if should_be_eligible else 0.01
+    reasoning_score += 0.32 if marks_reasoning else 0.01
     
-    # Ensure score is in (0, 1) exclusive
-    return round(max(0.01, min(0.99, reasoning_score)), 2)
+    return _ensure_valid_score(reasoning_score)
 
 
 def grade_all_tasks() -> dict[str, float]:
     task1 = grade_task1()
     task2 = grade_task2()
     task3 = grade_task3()
-    average = round((task1 + task2 + task3) / 3, 2)
+    average = _ensure_valid_score((task1 + task2 + task3) / 3)
     return {"task1": task1, "task2": task2, "task3": task3, "average": average}
