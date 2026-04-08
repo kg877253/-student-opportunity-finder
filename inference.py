@@ -9,11 +9,11 @@ import requests
 from openai import OpenAI
 
 
-# CRITICAL: Use their injected environment variables
+# Environment variables per checklist requirements
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
-API_BASE_URL = os.environ.get("API_BASE_URL")  # MUST use their proxy
-API_KEY = os.environ.get("API_KEY")  # MUST use their key
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")  # Default required
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4")  # Default required
+API_KEY = os.environ.get("API_KEY") or os.environ.get("HF_TOKEN")  # NO default
 
 
 def log_start(task_name: str):
@@ -98,17 +98,15 @@ def run_step(payload: dict) -> dict:
 
 
 def main():
-    # Validate required environment variables
-    if not API_BASE_URL:
-        print("ERROR: API_BASE_URL not set", flush=True, file=sys.stderr)
-        sys.exit(1)
+    # Validate API_KEY (no default per checklist)
     if not API_KEY:
-        print("ERROR: API_KEY not set", flush=True, file=sys.stderr)
+        print("ERROR: API_KEY or HF_TOKEN not set", flush=True, file=sys.stderr)
         sys.exit(1)
     
-    print(f"Using LLM proxy: {API_BASE_URL}", flush=True, file=sys.stderr)
+    print(f"Using LLM at: {API_BASE_URL}", flush=True, file=sys.stderr)
+    print(f"Using model: {MODEL_NAME}", flush=True, file=sys.stderr)
     
-    # Initialize OpenAI client with THEIR proxy (required!)
+    # Initialize OpenAI client
     client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
     
     # Wait for environment server
