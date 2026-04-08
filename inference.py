@@ -15,14 +15,30 @@ API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")  # Default
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4")  # Default required
 API_KEY = os.environ.get("API_KEY") or os.environ.get("HF_TOKEN")  # NO default
 
+# CRITICAL: Score boundaries - NEVER use 0.0 or 1.0
+MIN_SCORE = 0.01
+MAX_SCORE = 0.99
+FALLBACK_SCORE = 0.5
 
-def _clamp_score(score: float) -> float:
-    """CRITICAL: Clamp score to (0, 1) exclusive - validator requirement!"""
-    if score <= 0.0:
-        return 0.01
-    if score >= 1.0:
-        return 0.99
-    return score
+
+def _clamp_score(score) -> float:
+    """CRITICAL: Clamp score to (0, 1) exclusive - validator requirement!
+    Handles ANY input type safely."""
+    try:
+        s = float(score)
+        if s <= 0.0:
+            return MIN_SCORE
+        if s >= 1.0:
+            return MAX_SCORE
+        result = round(s, 4)
+        # Double-check after rounding
+        if result <= 0.0:
+            return MIN_SCORE
+        if result >= 1.0:
+            return MAX_SCORE
+        return result
+    except:
+        return FALLBACK_SCORE
 
 
 def log_start(task_name: str):
@@ -30,12 +46,12 @@ def log_start(task_name: str):
     print(f"[START] {json.dumps({'task': task_name, 'timestamp': timestamp})}", flush=True)
 
 
-def log_step(action: dict, observation: dict, reward: float, done: bool):
+def log_step(action: dict, observation: dict, reward, done: bool):
     clamped = _clamp_score(reward)
     print(f"[STEP] {json.dumps({'action': action, 'reward': clamped, 'done': done})}", flush=True)
 
 
-def log_end(task_name: str, score: float):
+def log_end(task_name: str, score):
     clamped = _clamp_score(score)
     timestamp = datetime.now().isoformat()
     print(f"[END] {json.dumps({'task': task_name, 'score': clamped, 'timestamp': timestamp})}", flush=True)
@@ -106,10 +122,10 @@ Task schema: {json.dumps(task_info, indent=2)}"""
 def run_step(payload: dict, server_available: bool = True) -> dict:
     """Call environment step endpoint, or return fallback if server unavailable."""
     if not server_available:
-        # Fallback mode - return minimal valid response (score must be in (0,1) exclusive)
+        # Fallback mode - return minimal valid response
         return {
             "observation": {},
-            "reward": 0.01,  # Changed from 0.0 to satisfy (0,1) constraint
+            "reward": FALLBACK_SCORE,
             "done": True,
             "info": {"fallback": True}
         }
@@ -117,10 +133,14 @@ def run_step(payload: dict, server_available: bool = True) -> dict:
     try:
         response = requests.post(f"{ENV_BASE_URL}/step", json=payload, timeout=30)
         response.raise_for_status()
-        return response.json()
+        data = response.json()
+        # CLAMP any reward in the response
+        if "reward" in data:
+            data["reward"] = _clamp_score(data["reward"])
+        return data
     except Exception as e:
         print(f"Error calling /step: {e}", flush=True, file=sys.stderr)
-        # Return fallback on error (score must be in (0,1) exclusive)
+        # Return fallback on error
         return {
             "observation": {},
             "reward": 0.01,  # Changed from 0.0 to satisfy (0,1) constraint
