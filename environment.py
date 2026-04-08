@@ -87,7 +87,7 @@ class ScholarshipEnvironment:
             total_found=0,
             message="Unknown task. Use find_scholarships or find_exams.",
             done=True,
-            reward=0.0,
+            reward=0.01,  # Changed from 0.0 to satisfy (0,1) constraint
         )
         return self._to_step_result(observation, notes=["Unknown task"])
 
@@ -111,12 +111,13 @@ class ScholarshipEnvironment:
         for scholarship in scholarships:
             score, reason = self._calculate_scholarship_match(action, scholarship)
             if score > 0.3:
+                clamped_score = max(0.01, min(0.99, score))  # Clamp to (0.01, 0.99)
                 matched.append(
                     ScholarshipResult(
                         name=scholarship["name"],
                         amount=str(scholarship.get("amount", "Check website")),
                         deadline=scholarship["deadline"],
-                        match_score=round(score, 2),
+                        match_score=round(clamped_score, 2),
                         match_reason=reason,
                     )
                 )
@@ -124,9 +125,10 @@ class ScholarshipEnvironment:
         matched.sort(key=lambda item: item.match_score, reverse=True)
 
         top_scores = [item.match_score for item in matched[:3]]
-        average_top_score = sum(top_scores) / len(top_scores) if top_scores else 0.0
-        coverage = min(1.0, len(matched) / 5)
-        reward = round(min(1.0, 0.65 * average_top_score + 0.35 * coverage), 2)
+        average_top_score = sum(top_scores) / len(top_scores) if top_scores else 0.01
+        coverage = min(0.99, len(matched) / 5)
+        raw_reward = 0.65 * average_top_score + 0.35 * coverage
+        reward = round(max(0.01, min(0.99, raw_reward)), 2)
         self.state.total_reward += reward
 
         return ScholarshipObservation(
@@ -285,6 +287,7 @@ class ScholarshipEnvironment:
         for exam in exams:
             score, reason, age_relaxation = self._calculate_exam_match(action, exam)
             if score > 0.3:
+                clamped_score = max(0.01, min(0.99, score))  # Clamp to (0.01, 0.99)
                 matched.append(
                     ExamResult(
                         name=exam["name"],
@@ -292,7 +295,7 @@ class ScholarshipEnvironment:
                         deadline=exam["deadline"],
                         exam_type=exam["exam_type"],
                         salary_range=exam["salary_range"],
-                        match_score=round(score, 2),
+                        match_score=round(clamped_score, 2),
                         match_reason=reason,
                         age_relaxation=age_relaxation,
                     )
@@ -300,9 +303,10 @@ class ScholarshipEnvironment:
 
         matched.sort(key=lambda item: item.match_score, reverse=True)
         top_scores = [item.match_score for item in matched[:3]]
-        average_top_score = sum(top_scores) / len(top_scores) if top_scores else 0.0
-        coverage = min(1.0, len(matched) / 5)
-        reward = round(min(1.0, 0.55 * average_top_score + 0.45 * coverage), 2)
+        average_top_score = sum(top_scores) / len(top_scores) if top_scores else 0.01
+        coverage = min(0.99, len(matched) / 5)
+        raw_reward = 0.55 * average_top_score + 0.45 * coverage
+        reward = round(max(0.01, min(0.99, raw_reward)), 2)
         self.state.total_reward += reward
 
         return ExamObservation(
@@ -378,7 +382,7 @@ class ScholarshipEnvironment:
                 manual_review_criteria=[],
                 message="Scholarship not found. Please check the name and try again.",
                 done=True,
-                reward=0.0,
+                reward=0.01,  # Changed from 0.0 to satisfy (0,1) constraint
             )
 
         passed = []
@@ -422,9 +426,10 @@ class ScholarshipEnvironment:
                 )
 
         total_criteria = len(passed) + len(failed) + len(manual)
-        passed_ratio = len(passed) / total_criteria if total_criteria else 0.0
+        passed_ratio = len(passed) / total_criteria if total_criteria else 0.01
         manual_penalty = 0.05 * len(manual)
-        reward = round(max(0.0, min(1.0, passed_ratio - manual_penalty)), 2)
+        raw_reward = passed_ratio - manual_penalty
+        reward = round(max(0.01, min(0.99, raw_reward)), 2)
         is_eligible = not failed and not manual
         self.state.total_reward += reward
 
